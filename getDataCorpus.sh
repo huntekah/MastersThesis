@@ -1,6 +1,13 @@
 # run this script in order to download 40GB of raw text data from the web
 # source: https://skylion007.github.io/OpenWebTextCorpus/
 
+show_help(){
+    echo "$(basename "$0") [-s, --small] [-b, --big, -f, --full] [-h, --help]"
+    echo "this script will download corpora that this project was trained on."
+    echo ""
+    exit 0
+}
+
 
 google_drive_download () {
     echo "Attempting to download OpenWebText data from googledrive with id $1"
@@ -9,11 +16,32 @@ google_drive_download () {
     rm -rf /tmp/cookies.txt
 }
 
-main() {
-    #google_drive_download "1IaD_SIIB-K3Sij_-JjWoPy_UrWqQRdjx" openwebtext.tar.xz
-    google_drive_download "1EA5V0oetDCOke7afsktL_JDQ-ETtNOvx" openwebtext.tar.xz
-
+get_small_sample(){
+    google_drive_download "1gFU2UXCnVRPfd0YB6K9-4ARMLONJRhOE" subset.tar
 }
 
-main
+get_full_corpus() {
+    google_drive_download "1EA5V0oetDCOke7afsktL_JDQ-ETtNOvx" openwebtext.tar.xz
+}
+
+main() {
+    for i in "$@"; do
+        case $i in
+            -s|--small)
+                get_small_sample
+                shift
+                ;;
+            -f|--full|-b|--big)
+                get_full_corpus
+                shift
+                ;;
+            -h|--help|*)
+                show_help
+                shift
+                ;;
+         esac
+    done
+}
+
+main "$@"
 
