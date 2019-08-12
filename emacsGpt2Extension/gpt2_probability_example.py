@@ -5,12 +5,6 @@ from pytorch_transformers import *
 INPUT_TEXT = "I have a dream"
 pretrained_weights = 'gpt2'
 
-tokenizer = GPT2Tokenizer.from_pretrained(pretrained_weights)
-model = GPT2LMHeadModel.from_pretrained(pretrained_weights)
-
-input_ids = torch.tensor([tokenizer.encode(INPUT_TEXT)])
-
-print("Running program for an input text: \n\t{}\n".format(INPUT_TEXT))
 def log_print(*args,**kwargs):
     for i in args:
         print(">>>"+" {}".format(str(i)),sep = " ", end = "",**kwargs)
@@ -19,6 +13,13 @@ def log_print(*args,**kwargs):
 def logit2prob(l):
     odds = exp(l)
     return odds / (1 + odds)
+
+print("Running program for an input text: \n\t{}\n".format(INPUT_TEXT))
+
+tokenizer = GPT2Tokenizer.from_pretrained(pretrained_weights)
+model = GPT2LMHeadModel.from_pretrained(pretrained_weights)
+
+input_ids = torch.tensor([tokenizer.encode(INPUT_TEXT)])
 
 log_print("input_ids {}".format(input_ids))
 with torch.no_grad():
@@ -36,7 +37,11 @@ with torch.no_grad():
         print(sorted_indices)
         log_print("\n","items and their proba:")
         print(tokenizer.decode(sorted_indices[0].item()), ' ', sorted_probs[0])
-
+        print(tokenizer.decode(sorted_indices[1].item()), ' ', sorted_probs[1])
+        print(tokenizer.decode(sorted_indices[2].item()), ' ', sorted_probs[2])
+        for a in range(len(sorted_indices)):
+            if sorted_indices[a].item()  == "pen":
+                print(a, sorted_indices[a].item(), sorted_probs[a])
         token_id = input_ids[0][ix]
         log_print("\n","ix, ' ', token_id, ' ', tokenizer.decode(token_id.item()), ' ', probs[ix-1][token_id]")
         print(ix, ' ', token_id, ' ', tokenizer.decode(token_id.item()), ' ', probs[ix-1][token_id])
