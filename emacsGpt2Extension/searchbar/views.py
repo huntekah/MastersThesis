@@ -14,14 +14,13 @@ class Gpt2SearchView(APIView):
             query = request.GET['q']
             message = 'You submitted: {}'.format(query)
             engine = proba_engine(query)
-            json_response = engine.get_sentence_proba() 
+            json_response = engine.get_cumulative_search_result() 
 
             return Response(json_response)
 
         else:
             return Response({'tip':'To get an example result type "curl <port>/search/?q=<query_text>"'})
             
-        return Response({'some':message})
 
 
 class HomePageView(TemplateView):

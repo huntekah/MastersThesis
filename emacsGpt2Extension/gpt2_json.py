@@ -26,8 +26,8 @@ class proba_engine():
         print("Running program for an input text: \n\t{}\n".format(text))
 
     def get_sentence_proba(self):
-        """ problably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
-        log_print("Analizing {}".format(self.text))
+        """ probably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
+        log_print("gsp: Analizing {}".format(self.text))
         arr = []
         with torch.no_grad():
             outputs = self.model(input_ids=self.input_ids)
@@ -42,5 +42,41 @@ class proba_engine():
             print(json.dumps(arr))
         return json.dumps(arr)
 
-obj = proba_engine("I have a dream")
-obj.get_sentence_proba()
+    @staticmethod
+    def _get_oddballness_proba(chosen_token_proba, tokens_proba):
+        oddballness = 0
+        for other_token_proba in tokens_proba:
+            oddballness += max(0, other_token_proba - chosen_token_proba)
+        return oddballness
+
+    def get_cumulative_search_result(self):
+        """ probably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
+        log_print("gcsr: Analizing {}".format(self.text))
+        arr = []
+        with torch.no_grad():
+            outputs = self.model(input_ids=self.input_ids)
+            logits = outputs[0][0]
+            for ix in range(0, len(self.input_ids[0])):
+                token_obj = {}
+                probs = torch.softmax(logits, 1)
+                
+                sorted_probs, sorted_indices = torch.sort(probs[ix-1], descending=True)
+                token_id = self.input_ids[0][ix]
+
+                token_obj["name"] = self.tokenizer.decode(token_id.item())
+                token_obj["probability"] = probs[ix-1][token_id].item()
+
+                list_of_int_probas = list(map(lambda x: x.item(), sorted_probs))
+                token_obj["oddballness"] = self._get_oddballness_proba(token_obj["probability"], list_of_int_probas )
+
+                arr.append(token_obj)
+
+            print(json.dumps(arr))
+        return json.dumps(arr)
+
+
+        
+if __name__ == "__main__":
+    obj = proba_engine("I have a dream")
+    obj.get_sentence_proba()
+    print(obj.get_cumulative_search_result())
