@@ -7,3 +7,10 @@ To run gpt2 probability microservice:
  2. ``` cd emacsGpt2Extension; python manage.py migrate ```
  3. run server ``` python manage.py runserver ```
  4. ask questions: ``` curl http://127.0.0.1:8000/search/?q=I%20Have%20a%20Dream ```
+
+## Oddballness html creator
+To generate a webpage with words colored according to their oddballness, run:
+ 1. install python requirements.txt
+ 2. ```cd scripts```
+ 3. ``` cat <text file> | python oddballness_create_html.py```
+ The script will prompt you with the detailed oddballness for each word, as well as create html page with the name: gpt2_parsed_document_<timestamp>.html

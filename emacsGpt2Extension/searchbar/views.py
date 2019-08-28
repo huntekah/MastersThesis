@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 #import sys
 #sys.path.append("..")
-from gpt2_json import proba_engine
+from gpt2_proba_engine import proba_engine
 # Create your views here.
 
 class Gpt2SearchView(APIView):
