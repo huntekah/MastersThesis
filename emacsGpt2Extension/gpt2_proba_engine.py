@@ -8,7 +8,7 @@ import sys
 INPUT_TEXT = "I have a dream"
 pretrained_weights = 'gpt2'
 
-device = 'cuda:0'
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def log_print(*args,**kwargs):
     for i in args:
