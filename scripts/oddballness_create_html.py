@@ -10,10 +10,11 @@ from time import time
 #from random import randint
 
 class create_html():
-    def __init__(self, text=None):
+    def __init__(self, text=None, color_threshold = 0.5):
         self.set_text(text)
         self.engine = proba_engine(text)
         self.html_parts = []
+        self.color_threshold = color_threshold
 
     def set_text(self, text):
         self.text = text
@@ -32,8 +33,8 @@ class create_html():
         html_text = ""
         self.engine.get_cumulative_search_result(text)
         for token_data in self.engine.token_array:
-            print(token_data)
-            html_text += '<span style="color: rgb({:.2f},{:.2f},{:.2f})'.format(*self._color_red_green(token_data["oddballness"]))\
+            #print(token_data)
+            html_text += '<span style="color: rgb({:.2f},{:.2f},{:.2f})'.format(*self._color_from_value(token_data["oddballness"]))\
                     + '">'\
                     + token_data["name"].replace("\n","</br>")\
                     + '</span> '
@@ -64,15 +65,16 @@ class create_html():
         html_text += "</br>"
         return html_text
 
-    @staticmethod
-    def _color_red_green(val):
-        starthue = 120
-        stophue = 0
-        minval = 0.0
-        maxval = 1.0
-        h = (float(val-minval) / (maxval-minval)) * (stophue-starthue) + starthue
-        r, g, b = hsv_to_rgb(h/360, 1., 1.)
-        return r*255, g*255, b*255
+    def _color_from_value(self, val):
+        if val > self.color_threshold:
+            starthue = 60
+            stophue = 0
+            minval = 0.0
+            maxval = 1.0
+            h = (float(val-minval) / (maxval-minval)) * (stophue-starthue) + starthue
+            r, g, b = hsv_to_rgb(h/360, 1., 1.)
+            return r*255, g*255, b*255
+        return 0,0,0
 
 if __name__ == "__main__":
     html_parsing_engine = create_html()
@@ -88,9 +90,9 @@ if __name__ == "__main__":
         html_parsing_engine.create_html_part(lines)
 
     html = html_parsing_engine.create_whole_html()
-    #print(html)
+    print(html)
     time_stamp = int(time())
     file_name ="gpt2_parsed_document_{}.html".format(time_stamp)
     with open(file_name, "w+") as f:
         f.write(html)
-    print("The result have been saved to {}".format(file_name))
+    #print("The result have been saved to {}".format(file_name))

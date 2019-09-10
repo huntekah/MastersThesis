@@ -31,11 +31,11 @@ class proba_engine():
         self.text = text
         self.input_ids = torch.tensor([self.tokenizer.encode(self.text)])
         # clear all intermediate results here.
-        print("Running program for an input text: \n\t{}\n".format(text))
+        # print("Running program for an input text: \n\t{}\n".format(text))
 
     def get_sentence_proba(self):
         """ probably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
-        log_print("gsp: Analizing {}".format(self.text))
+        #log_print("gsp: Analizing {}".format(self.text))
         arr = []
         with torch.no_grad():
             outputs = self.model(input_ids=self.input_ids.to(device))
@@ -46,8 +46,8 @@ class proba_engine():
                 sorted_probs, sorted_indices = torch.sort(probs[ix-1], descending=True)
                 token_id = self.input_ids[0][ix]
                 arr.append( (self.tokenizer.decode(token_id.item()), probs[ix-1][token_id].item() ) )
-            #print(arr)
-            print(json.dumps(arr))
+            # print(arr)
+            # print(json.dumps(arr))
         return json.dumps(arr)
 
     @staticmethod
@@ -58,7 +58,7 @@ class proba_engine():
     def get_cumulative_search_result(self, text):
         """ probably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
         self.set_input_text(text)
-        log_print("gcsr: Analizing {}".format(self.text))
+        # log_print("gcsr: Analizing {}".format(self.text))
         arr = []
         with torch.no_grad():
             outputs = self.model(input_ids=self.input_ids.to(device))
