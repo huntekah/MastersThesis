@@ -25,15 +25,12 @@ class create_html():
             html_text += html_part
             html_text = self._append_new_line(html_text)
         html_text = self._create_html_footer(html_text)
-        
+
         return html_text
 
     def create_html_part(self, text=None):
-        if text:
-            self.set_text(text) # trzeba bedzie przerobic na domyslne set get
-        
         html_text = ""
-        self.engine.get_cumulative_search_result(self.text)
+        self.engine.get_cumulative_search_result(text)
         for token_data in self.engine.token_array:
             print(token_data)
             html_text += '<span style="color: rgb({:.2f},{:.2f},{:.2f})'.format(*self._color_red_green(token_data["oddballness"]))\
@@ -55,15 +52,15 @@ class create_html():
         </head>
 
         <body>"""
-        return html_text 
+        return html_text
 
     @staticmethod
-    def _create_html_footer(html_text):   
+    def _create_html_footer(html_text):
         html_text += "</body></html>"
         return html_text
 
     @staticmethod
-    def _append_new_line(html_text):   
+    def _append_new_line(html_text):
         html_text += "</br>"
         return html_text
 
@@ -80,20 +77,20 @@ class create_html():
 if __name__ == "__main__":
     html_parsing_engine = create_html()
     lines = ""
+    text_limit = 1024
     for line in fileinput.input():
-        if len(lines) + len(line) < 1024:
+        if len(lines) + len(line) < text_limit:
             lines += line
         else:
             html_parsing_engine.create_html_part(lines)
-            lines = ""
+            lines = line[0:text_limit]
     else:
         html_parsing_engine.create_html_part(lines)
-    
+
     html = html_parsing_engine.create_whole_html()
     #print(html)
     time_stamp = int(time())
-    file_name ="gpt2_parsed_document_{}.html".format(time_stamp) 
+    file_name ="gpt2_parsed_document_{}.html".format(time_stamp)
     with open(file_name, "w+") as f:
         f.write(html)
     print("The result have been saved to {}".format(file_name))
-
