@@ -1,18 +1,26 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/hand_written.png" width="128px">
-    <HelloWorld msg="Welcome to Karol Vue.js App"/>
+    <img alt="Hand writing" src="@/assets/hand_written.png" width="128px">
+    <HomePage msg="Welcome to the possibilities of GPT2 text writing support!"/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import HomePage from '@/components/HomePage.vue'
 
 export default {
   name: 'home',
   components: {
-    HelloWorld
+    HomePage
   }
 }
 </script>
+
+
+<style>
+.home {
+  text-align: center;
+}
+</style>
+ 

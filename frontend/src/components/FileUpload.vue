@@ -42,18 +42,24 @@ export default {
       const formData = new FormData();
       const fileReader = new FileReader();
       console.log("TEST");
+      try{
       fileReader.readAsText(this.file);
-      fileReader.onloadend = function(){
-        console.log(fileReader.result);
+        fileReader.onloadend = function(){
+          console.log(fileReader.result);
+          this.$router.push({ name: '/',
+                              params: {inputText: fileReader.result
+                            }});
+        }
+      } catch (err) {
+        console.log(err)
       }
-      
-      formData.append('file',this.file);
-    
-      try {
-        axios.post('/TODO', formData);
-      } catch(err) {
-        console.log(err);
-      }
+      // formData.append('file',this.file);
+
+      // try {
+      //   axios.post('/TODO', formData);
+      // } catch(err) {
+      //   console.log(err);
+      // }
     }
   }
 
