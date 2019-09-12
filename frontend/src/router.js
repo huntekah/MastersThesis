@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import FileCorrection from './views/FileCorrection.vue'
 
 Vue.use(Router)
 
@@ -11,7 +12,7 @@ export default new Router({
       name: 'home',
       component: Home
     },
-     {
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
@@ -20,9 +21,9 @@ export default new Router({
       component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
     },
     {
-      path: '/file_corection',
-      name: 'file_corection',
-      component: () => import('./views/File-correction.vue')
+      path: '/fileCorection',
+      name: 'fileCorectionView',
+      component: FileCorrection
     }
   ]
 })

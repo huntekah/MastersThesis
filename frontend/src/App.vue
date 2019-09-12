@@ -2,7 +2,7 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Text Correction</router-link> |
-      <router-link to="/file_correction">File Correction</router-link> | 
+      <router-link to="/fileCorection">File Correction</router-link> | 
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
