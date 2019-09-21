@@ -1,23 +1,28 @@
 <template>
-<form @submit.prevent="sendFile" enctype="multipart/form-data">
-  <div class="input-group shadow-lg p-3 mb-5 bg-white rounded">
-    <!-- <div class="form-group"> -->
-    
-      <label 
-      for="fileUpload" 
-      class="">{{msg}}</label>
-      <input 
-        type="file" 
-        ref="file"
-        id="fileUpload" 
-        class="form-control-file .form-control-lg" 
-        @change="selectFile" />
-          <button type="submit" class="btn btn-primary">
-            Submit
-          </button>
+  <div class="container">
+    <form v-show="isFileFormVisible()" @submit.prevent="sendFile" enctype="multipart/form-data">
+      <div class="input-group shadow-lg p-3 mb-5 bg-white rounded">
+        <!-- <div class="form-group"> -->
+        
+          <label 
+          for="fileUpload" 
+          class="">{{msg}}</label>
+          <input 
+            type="file" 
+            ref="file"
+            id="fileUpload" 
+            class="form-control-file .form-control-lg" 
+            @change="selectFile" />
+              <button type="submit" class="btn btn-primary">
+                Submit
+              </button>
+      </div>
+    </form>
+    <div v-show="isFileEditorVisible()">
+      TEST
+      {{fileContent}}
+    </div>
   </div>
-  </form>
-  <!-- </div> -->
 </template>
 
 <script>
@@ -31,7 +36,9 @@ export default {
   },
   data(){
     return {
-      file: ""
+      file: "",
+      fileIsLoaded: false,
+      fileContent: "You have not loaded a file yet!"
     }
   },
   methods: {
@@ -42,17 +49,27 @@ export default {
       const formData = new FormData();
       const fileReader = new FileReader();
       console.log("TEST");
+      console.log("1" + this.fileIsLoaded);
+                      console.log("21" + this.isFileEditorVisible());
+                console.log("31" + this.isFileFormVisible());
       try{
-      fileReader.readAsText(this.file);
-        fileReader.onloadend = function(){
-          console.log(fileReader.result);
-          this.$router.push({ name: '/',
-                              params: {inputText: fileReader.result
-                            }});
+        fileReader.readAsText(this.file);
+        fileReader.onloadend = (e) =>{
+          this.fileContent = fileReader.result;
+          this.fileIsLoaded = true;
+                console.log("14" + this.isFileEditorVisible());
+                console.log("51" + this.isFileFormVisible());
+          // this.$router.push({ name: '/',
+          //                     params: {inputText: fileReader.result
+          //                   }});
         }
       } catch (err) {
         console.log(err)
       }
+
+                console.log("61" + this.isFileEditorVisible());
+                console.log("17" + this.isFileFormVisible());
+
       // formData.append('file',this.file);
 
       // try {
@@ -60,6 +77,12 @@ export default {
       // } catch(err) {
       //   console.log(err);
       // }
+    },
+    isFileFormVisible(){
+      return this.fileIsLoaded != true;
+    },
+    isFileEditorVisible(){
+      return !this.isFileFormVisible();
     }
   }
 
