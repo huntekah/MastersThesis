@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import FileCorrection from './views/FileCorrection.vue'
+import FileCorrection from '@/views/FileCorrection.vue'
+import TextCorrection from '@/views/TextCorrection.vue'
 
 Vue.use(Router)
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/fileCorection',
       name: 'fileCorectionView',
       component: FileCorrection
+    },
+    {
+      path: '/textCorrection',
+      name: 'textCorrectionView',
+      component: TextCorrection
     }
   ]
 })

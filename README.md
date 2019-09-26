@@ -5,7 +5,7 @@ this repo will essentialy be just my masters thesis. It will probably be shared 
 To run gpt2 probability microservice:
  1. install python requirements.txt
  2. ``` cd emacsGpt2Extension; python manage.py migrate ```
- 3. run server ``` python manage.py runserver ```
+ 3. run server ``` python manage.py runserver 8000```
  4. ask questions: ``` curl http://127.0.0.1:8000/search/?q=I%20Have%20a%20Dream ```
 
 ## Oddballness html creator

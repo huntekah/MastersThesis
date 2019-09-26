@@ -1,43 +1,46 @@
 <template>
   <div class="container">
-    <form v-show="isFileFormVisible()" @submit.prevent="sendFile" enctype="multipart/form-data">
-      <div class="input-group shadow-lg p-3 mb-5 bg-white rounded">
+
+    <form @submit.prevent="sendFile" 
+    enctype="multipart/form-data">
+      <div class=" input-group shadow-lg p-3 mb-5 bg-white rounded">
         <!-- <div class="form-group"> -->
-        
+            
           <label 
           for="fileUpload" 
-          class="">{{msg}}</label>
+          class="">Choose an input file for correction:</label>
           <input 
+            style="display: none"
             type="file" 
             ref="file"
             id="fileUpload" 
             class="form-control-file .form-control-lg" 
             @change="selectFile" />
-              <button type="submit" class="btn btn-primary">
-                Submit
-              </button>
+          <div class='col d-flex align-items-center'>
+            <button type="button" @click="$refs.file.click()">
+              <img v-show="this.file==''" alt="Choose a file" src="@/assets/file_txt.png" width="32px">
+              <span v-show="this.file!=''">{{this.file.name}}</span>
+            </button>
+          </div>
+            <div class='col d-flex align-items-center'>
+            <button type="submit" class="btn btn-primary">
+                Edit!
+            </button>
+        </div>
       </div>
     </form>
-    <div v-show="isFileEditorVisible()">
-      TEST
-      {{fileContent}}
-    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
 import { format } from 'path';
 
 export default {
   name: 'FileUpload',
-  props: {
-    msg: String
-  },
+  props: {},
   data(){
     return {
       file: "",
-      fileIsLoaded: false,
       fileContent: "You have not loaded a file yet!"
     }
   },
@@ -48,27 +51,16 @@ export default {
     sendFile() {
       const formData = new FormData();
       const fileReader = new FileReader();
-      console.log("TEST");
-      console.log("1" + this.fileIsLoaded);
-                      console.log("21" + this.isFileEditorVisible());
-                console.log("31" + this.isFileFormVisible());
       try{
         fileReader.readAsText(this.file);
         fileReader.onloadend = (e) =>{
-          this.fileContent = fileReader.result;
-          this.fileIsLoaded = true;
-                console.log("14" + this.isFileEditorVisible());
-                console.log("51" + this.isFileFormVisible());
-          // this.$router.push({ name: '/',
-          //                     params: {inputText: fileReader.result
-          //                   }});
+          var fileContent = fileReader.result;
+          this.$store.dispatch('fileIsLoaded');
+          this.$store.dispatch('editInputText', fileContent);
         }
       } catch (err) {
         console.log(err)
       }
-
-                console.log("61" + this.isFileEditorVisible());
-                console.log("17" + this.isFileFormVisible());
 
       // formData.append('file',this.file);
 
@@ -78,31 +70,11 @@ export default {
       //   console.log(err);
       // }
     },
-    isFileFormVisible(){
-      return this.fileIsLoaded != true;
-    },
-    isFileEditorVisible(){
-      return !this.isFileFormVisible();
-    }
   }
-
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+
 </style>
