@@ -39,21 +39,24 @@ export const store = new Vuex.Store({
     },
     sendInputTextToEngine: context => {
       // const formData = new FormData()
-      console.log(context.inputText)
-      axios.get('http://localhost:8000/search', {
-        'q': 'Ala ma kota',
-        'crossdomain': true
+      console.log(context.getters.inputText)
+      // axios.get('http://localhost:8000/search/', {
+      //   'q': 'Ala ma kota',
+      //   'crossdomain': true
+      // }).catch(function (response) {
+      //       // handle error
+      //         console.log(response)
+      //       })
+      axios.post('http://localhost:8000/search/', {
+        queryText: context.getters.inputText
+      }).then(function (response) {
+        // handle success
+        console.log(response)
       })
-    //   axios.post('http://localhost:8000/search', {
-    //     queryText: context.inputText
-    //   }).then(function (response) {
-    //     // handle success
-    //     console.log(response)
-    //   })
-    //     .catch(function (response) {
-    //     // handle error
-    //       console.log(response)
-    //     })
+        .catch(function (response) {
+        // handle error
+          console.log(response)
+        })
     }
   }
 })

@@ -1,12 +1,14 @@
 <template>
   <div class="container">
     <div class="row">
+      <div class="col">
       <button 
         type="button" 
         class="btn btn-outline-success btn-lg btn-block"
         @click="sendInputTextToEngine()">
         Check the text
       </button>
+      </div>
     </div>
     <div class="row">
       <div class="col-lg-6">
