@@ -123,3 +123,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#custom added
+.idea
+/scripts/gpt2_parsed_document_*.html
