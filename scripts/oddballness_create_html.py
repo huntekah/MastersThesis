@@ -1,6 +1,6 @@
 #!/usr/bin/env python 
 import os,sys
-sys.path.append("../emacsGpt2Extension")
+sys.path.append("../backend")
 #print(os.getcwd())
 #print(sys.path)
 from gpt2_proba_engine import proba_engine

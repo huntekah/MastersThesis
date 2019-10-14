@@ -23,10 +23,11 @@ def logit2prob(l):
 
 
 class proba_engine():
+    #pretrained_weights = 'gpt2-large'
     pretrained_weights = 'gpt2'
 
     def __init__(self, text=None):
-        self.tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
+        self.tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights) # should i change special tokens like beginnigng of text unk and end of text?
         self.model = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
         self.model.eval() # deactivate DropOut modules to have reproducible results during evaluation
         self.model.to(device)
@@ -40,9 +41,19 @@ class proba_engine():
     def input_text(self, val):
         if val:
             self.__input_text = val
+            ## return_tensors – (optional) can be set to ‘tf’ or ‘pt’ to return respectively TensorFlow tf.constant or PyTorch torch.Tensor instead of a list of python integers.
+            ## moze mozna zrobic to ciut ładniej.
             self.indexed_tokens = self.tokenizer.encode(self.input_text)
+            ## input_ids is:
+            # """A Dictionary of shape::
+            #     {
+            #         input_ids: list[int],
+            #         overflowing_tokens: list[int] if a ``max_length`` is specified, else None
+            #         special_tokens_mask: list[int] if ``add_special_tokens`` if set to ``True``
+            #     }"""
+
             self.input_ids = torch.tensor([self.indexed_tokens])
-            self.input_ids = self.input_ids.to(device)
+            self.input_ids = self.input_ids.to(device) # use CUDA if possible
 
     def get_sentence_proba(self):
         """ probably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
@@ -80,20 +91,7 @@ class proba_engine():
                 token_id = self.input_ids[0][ix]
 
                 token_prob = probs[ix - 1][token_id]
-                ############
-                print("_" * 15)
-                probs = torch.softmax(logits, 1)
 
-                sorted_probs, sorted_indices = torch.sort(probs[ix - 1], descending=True)
-
-                log_print("\n", "sorted_indicies:")
-                print(sorted_indices)
-                log_print("\n", "items and their proba:")
-                for a in range(0,20):
-                    print(self.tokenizer.decode(sorted_indices[a].item()), ' ', sorted_probs[a])
-
-
-                ####################
                 token_obj["name"] = self.tokenizer.decode(token_id.item())
                 token_obj["probability"] = token_prob.item()
 
@@ -119,32 +117,33 @@ class proba_engine():
             yield lines
 
     def get_text_correction_proposal(self, input_text):
-        """ text correction """
+        """ text correction | #post method """
         arr = []
         with torch.no_grad():
             for text_chunk in self._string_to_chunks(input_text):
-                self.input_text = text_chunk
-                outputs = self.model(input_ids=self.input_ids.to(device))
-                logits = outputs[0][0]
-                probs = torch.softmax(logits, 1)
+                self.input_text = text_chunk #set the text currently worked on (no bigger than 1024)
+                self._compute_outputs()
                 for ix in range(0, len(self.input_ids[0])):
                     token_obj = {}
                     token_id = self.input_ids[0][ix]
 
-                    token_prob = probs[ix - 1][token_id]
+                    token_prob = self.probs[ix - 1][token_id]
                     ############
-                    print("_" * 15)
-                    probs = torch.softmax(logits, 1)
+                    print("_" * 15, self.tokenizer.decode(token_id.item()), "_"*15)
+                    probs = torch.softmax(self.logits, 1)
 
                     sorted_probs, sorted_indices = torch.sort(probs[ix - 1], descending=True)
 
                     log_print("\n", "sorted_indicies:")
                     print(sorted_indices)
                     log_print("\n", "items and their proba:")
+                    self._get_token_correction_proposal(ix)
                     for a in range(0, 20):
-                        print(self.tokenizer.decode(sorted_indices[a].item()), ' ', sorted_probs[a])
+                        print(sorted_indices[a],self.tokenizer.decode(sorted_indices[a].item()), ' ', sorted_probs[a])
 
                     ####################
+                    print("_" * 15)
+                    print("My token id",token_id)
                     token_obj["name"] = self.tokenizer.decode(token_id.item())
                     token_obj["probability"] = token_prob.item()
 
@@ -154,6 +153,35 @@ class proba_engine():
 
                 self.token_array = arr
         return json.dumps(arr)
+
+    def _compute_outputs(self):
+        self.outputs = self.model(input_ids=self.input_ids.to(device))  # use the model?
+        self.logits = self.outputs[0][0]
+        self.probs = torch.softmax(self.logits, 1)
+
+    def _get_token_correction_proposal(self, index, num_tokens=10):
+        self.sorted_probs, self.sorted_indices = torch.sort(self.probs[index - 1], descending=True)
+        bt = self._get_best_tokens(index, num_tokens=int(num_tokens/2))
+        st = self._get_surrounding_tokens(index,num_tokens=int(num_tokens/2)) 
+        print("bt:")
+        print(bt)
+        print("st:")
+        print(st)
+        #TODO
+        #merge results
+
+    def _get_best_tokens(self, index, num_tokens=5):
+        return self.sorted_probs[:num_tokens], self.sorted_indices[:num_tokens]
+
+
+    def _get_surrounding_tokens(self, index, num_tokens=5):
+        token_id = self.input_ids[0][index]
+        sorted_index = (self.sorted_indices == token_id).nonzero()[0].item()
+        lower_boundary = max(0,int(sorted_index - num_tokens/2))
+        upper_boundary = min(len(self.sorted_probs)-1,int(sorted_index + num_tokens/2))
+        print(lower_boundary, upper_boundary)
+        return self.sorted_probs[lower_boundary:upper_boundary], self.sorted_indices[lower_boundary:upper_boundary]
+
 
 
 #    def create_html_for_entry(self, text = None):
