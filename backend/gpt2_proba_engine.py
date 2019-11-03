@@ -162,11 +162,12 @@ class proba_engine():
     def _get_token_correction_proposal(self, index, num_tokens=10):
         self.sorted_probs, self.sorted_indices = torch.sort(self.probs[index - 1], descending=True)
         bt = self._get_best_tokens(index, num_tokens=int(num_tokens/2))
-        st = self._get_surrounding_tokens(index,num_tokens=int(num_tokens/2)) 
-        print("bt:")
-        print(bt)
-        print("st:")
-        print(st)
+        st = self._get_surrounding_tokens(index,num_tokens=int(num_tokens/2))
+        print("btst 0:")
+        print(torch.cat((bt[0],st[0]),dim=0))
+        print("btst 1:")
+        print(torch.cat((bt[1],st[1]),dim=0))
+        print([self.tokenizer.decode(token_id.item()) for token_id in torch.cat((bt[1], st[1]), dim=0)])
         #TODO
         #merge results
 
@@ -174,12 +175,13 @@ class proba_engine():
         return self.sorted_probs[:num_tokens], self.sorted_indices[:num_tokens]
 
 
-    def _get_surrounding_tokens(self, index, num_tokens=5):
+    def _get_surrounding_tokens(self, index, num_tokens=5, min_index=5):
         token_id = self.input_ids[0][index]
         sorted_index = (self.sorted_indices == token_id).nonzero()[0].item()
-        lower_boundary = max(0,int(sorted_index - num_tokens/2))
-        upper_boundary = min(len(self.sorted_probs)-1,int(sorted_index + num_tokens/2))
+        lower_boundary = max(0+min_index,int(sorted_index - num_tokens/2))
+        upper_boundary = lower_boundary + num_tokens#min(len(self.sorted_probs)-1,int(sorted_index + num_tokens/2))
         print(lower_boundary, upper_boundary)
+
         return self.sorted_probs[lower_boundary:upper_boundary], self.sorted_indices[lower_boundary:upper_boundary]
 
 
