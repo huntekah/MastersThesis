@@ -1,0 +1,2 @@
+git diff --word-diff --no-index --minimal -U300000 -- orig.txt  cor.txt  | tail -n +6 | nl | head -n3 | sed -r "s/.*\{\+([a-zA-Z]*)\+\}.*/\1/g"
+
