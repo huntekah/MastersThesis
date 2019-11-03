@@ -69,7 +69,7 @@ class create_html():
         if val > self.color_threshold:
             starthue = 60
             stophue = 0
-            minval = 0.0
+            minval = self.color_threshold
             maxval = 1.0
             h = (float(val-minval) / (maxval-minval)) * (stophue-starthue) + starthue
             r, g, b = hsv_to_rgb(h/360, 1., 1.)

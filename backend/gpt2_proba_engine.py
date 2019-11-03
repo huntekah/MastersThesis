@@ -73,8 +73,8 @@ class proba_engine():
         return json.dumps(arr)
 
     @staticmethod
-    def _get_oddballness_proba(chosen_token_proba, tokens_proba):
-        oddballness = torch.sum(F.relu(tokens_proba - chosen_token_proba))
+    def _get_oddballness_proba(chosen_token_proba, tokens_proba, alpha=1):
+        oddballness = torch.sum(F.relu(tokens_proba - chosen_token_proba) ** alpha)
         return oddballness
 
     def get_cumulative_search_result(self, text=None):
