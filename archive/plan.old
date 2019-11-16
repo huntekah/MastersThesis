@@ -1,0 +1,13 @@
+> 1. Zebranie danych treningowych
+  a. Ekstrakcja polsko - angliekskich par - wykorzystanie otwartych słowników do translacji
+  a. Confusion sets (utworzenie) - literówki, homofony, słowa które pojawiają się jako tłumaczenie polskiego odpowiednika tego wyrazu.
+  a. Zebranie tekstu z polonizmami (książka doktora  F. Grlaińskiego)
+ 1. Wykrywanie podejrzanych słów przy użyciu GPT2. Tagowanie podejrzanych słów.
+ 1. Stworzenie prostego regułowego modelu tłumaczącego nie-anglojęzyczne słowa w zdaniu na wejściu. (to znaczy prosty słownik, nie tłumaczenie maszynowe!)
+ 1. Stworzenie prostego systemu opartego na GPT2 poprawiającego pojedyncze słowa.
+ 1. Stworzenie otoczki wokół emacsa / interfejsu webowego do prezentowania systemu.
+ 1. Iteracyjne dorabianie testów w trakcie pisania Magisterki
+ 1. Uzupełnianie dziur w postaci "tekst <token> tekst". Proponowany token to ...
+ 1. (dodatkowo) Rozwinięcie modelu poprawiającego zdania na bardziej rozbudowany
+ 1. (dodatkowo) Rozwinięcie modelu translacji
+
