@@ -32,7 +32,7 @@ class create_html():
     def create_html_part(self, text=None):
         html_text = ""
         self.engine.get_cumulative_search_result(text)
-        for token_data in self.engine.token_array:
+        for token_data in self.engine.sentence_data:
             #print(token_data)
             html_text += '<span style="color: rgb({:.2f},{:.2f},{:.2f})'.format(*self._color_from_value(token_data["oddballness"]))\
                     + '">'\

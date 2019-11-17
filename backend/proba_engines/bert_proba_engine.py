@@ -23,12 +23,11 @@ def logit2prob(l):
 
 class proba_engine():
     #pretrained_weights = 'gpt2-large'
-    pretrained_weights = 'gpt2'
-
+    pretrained_weights = 'bert-large-cased'
 
     def __init__(self, text=None):
-        self.tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights) # should i change special tokens like beginnigng of text unk and end of text?
-        self.model = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
+        self.tokenizer = BertTokenizer.from_pretrained(self.pretrained_weights) # should i change special tokens like beginnigng of text unk and end of text?
+        self.model = BertForMaskedLM.from_pretrained(self.pretrained_weights)
         self.model.eval() # deactivate DropOut modules to have reproducible results during evaluation
         self.model.to(device)
         self.input_text = text
@@ -40,30 +39,22 @@ class proba_engine():
     @input_text.setter
     def input_text(self, val):
         if val:
-            self.__input_text = val
-            ## return_tensors – (optional) can be set to ‘tf’ or ‘pt’ to return respectively TensorFlow tf.constant or PyTorch torch.Tensor instead of a list of python integers.
-            ## moze mozna zrobic to ciut ładniej.
+            self.__input_text = val  # + " [SEP]"
             self.indexed_tokens = self.tokenizer.encode(self.input_text)
-            ## input_ids is:
-            # """A Dictionary of shape::
-            #     {
-            #         input_ids: list[int],
-            #         overflowing_tokens: list[int] if a ``max_length`` is specified, else None
-            #         special_tokens_mask: list[int] if ``add_special_tokens`` if set to ``True``
-            #     }"""
 
             self.input_ids = torch.tensor([self.indexed_tokens])
-            self.input_ids = self.input_ids.to(device) # use CUDA if possible
+            self.input_ids = self.input_ids.to(device)
 
     def get_sentence_proba(self):
         """ probably could first calculate results and then just return jsons. will be done in the future as speedup. Tis is being made in the NeedForSpeed Deadline mode. """
-        # log_print("gsp: Analizing {}".format(self.text))
         arr = []
         with torch.no_grad():
-            outputs = self.model(input_ids=self.input_ids.to(device))
-            logits = outputs[0][0]
+            outputs = self.model(input_ids=self.input_ids,
+                                 masked_lm_labels=self.input_ids)
+            loss, prediction_scores = outputs[:2]
+            logits = prediction_scores[0]
+            probs = torch.softmax(logits, 1)
             for ix in range(0, len(self.input_ids[0])):
-                probs = torch.softmax(logits, 1)
 
                 sorted_probs, sorted_indices = torch.sort(probs[ix - 1], descending=True)
                 token_id = self.input_ids[0][ix]
@@ -83,15 +74,16 @@ class proba_engine():
         # log_print("gcsr: Analizing {}".format(self.text))
         arr = []
         with torch.no_grad():
-            outputs = self.model(input_ids=self.input_ids)
-            logits = outputs[0][0]
+            outputs = self.model(input_ids=self.input_ids, masked_lm_labels=self.input_ids)
+            loss, prediction_scores = outputs[:2]
+            logits = prediction_scores[0]
             probs = torch.softmax(logits, 1)
             for ix in range(0, len(self.input_ids[0])):
                 token_obj = {}
                 token_id = self.input_ids[0][ix]
-                print(len(probs),len(probs[ix-1]),len(self.input_ids[0]))
-
-                token_prob = probs[ix - 1][token_id]
+                #import ipdb; ipdb.set_trace()
+                print(len(probs),len(probs[ix-1]),len(self.input_ids[0]),token_id)
+                token_prob = probs[ix-1][token_id]
 
                 token_obj["name"] = self.tokenizer.decode(token_id.item())
                 token_obj["probability"] = token_prob.item()
@@ -122,7 +114,7 @@ class proba_engine():
         arr = []
         with torch.no_grad():
             for text_chunk in self._string_to_chunks(input_text):
-                self.input_text = text_chun #set the text currently worked on (no bigger than 1024)
+                self.input_text = text_chunk #set the text currently worked on (no bigger than 1024)
                 self._compute_outputs()
                 for ix in range(0, len(self.input_ids[0])):
                     token_obj = {}
@@ -193,5 +185,6 @@ class proba_engine():
 
 if __name__ == "__main__":
     obj = proba_engine("I have a dream")
-    obj.get_sentence_proba()
+    print(obj.get_sentence_proba())
+    print("KUPA")
     print(obj.get_cumulative_search_result())
