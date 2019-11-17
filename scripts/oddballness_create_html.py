@@ -1,18 +1,15 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python3.7
 import os,sys
 sys.path.append("../backend")
-#print(os.getcwd())
-#print(sys.path)
-from gpt2_proba_engine import proba_engine
+from proba_engines import Gpt2OddballnessEngine
 from colorsys import hsv_to_rgb
 import fileinput
 from time import time
-#from random import randint
 
 class create_html():
     def __init__(self, text=None, color_threshold = 0.5):
         self.set_text(text)
-        self.engine = proba_engine(text)
+        self.engine = Gpt2OddballnessEngine(text)
         self.html_parts = []
         self.color_threshold = color_threshold
 
@@ -31,7 +28,7 @@ class create_html():
 
     def create_html_part(self, text=None):
         html_text = ""
-        self.engine.get_cumulative_search_result(text)
+        self.engine.get_sentence_oddballness(text)
         for token_data in self.engine.sentence_data:
             #print(token_data)
             html_text += '<span style="color: rgb({:.2f},{:.2f},{:.2f})'.format(*self._color_from_value(token_data["oddballness"]))\

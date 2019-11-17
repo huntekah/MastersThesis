@@ -1,17 +1,5 @@
-# MastersThesis
-this repo is essentialy just my masters thesis. 
-
-## frontend
-Provides Vue frontend to experiment with the project.
-For techical details please reffer to README.md in ~/frontend/
-
-## backend
-Provides Django backend that is using:
- - TransformersLMEngine - mainly Gpt2OddballnessEngine and BertOddballnessEngine
-For technical details please reffer to README.md in ~/backend/
-
-## scripts
-### Oddballness html creator
+# scripts
+## Oddballness html creator
 This is stand-alone html creator. To generate a webpage with words colored according to their oddballness, run:
  1. install python requirements.txt
  2. ```cd scripts```

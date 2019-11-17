@@ -4,19 +4,23 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 #import sys
 #sys.path.append("..")
-#from gpt2_proba_engine import proba_engine
-from bert_proba_engine import proba_engine
+from proba_engines.bert_proba_engine import BertOddballnessEngine
+from proba_engines.gpt2_proba_engine import Gpt2OddballnessEngine
 # Create your views here.
 
 class Gpt2SearchView(APIView):
 
     def get(self, request):
-        """This function is used mainly for wget or Curl requests to generate colored output text"""
+        r""" This function is used mainly for wget or Curl requests to generate colored output text
+
+        :param request: json request in form of "q":"Some sentence here"
+        :return: json response with probabilities, and oddballness scores
+        """
         if request.GET.get('q'):
             query = request.GET['q']
             message = 'You submitted: {}'.format(query)
-            engine = proba_engine(query)
-            json_response = engine.get_cumulative_search_result()
+            engine = Gpt2OddballnessEngine(query)
+            json_response = engine.get_sentence_oddballness()
             return Response(json_response)
         else:
             return Response({'tip':'To get an example result type "curl <port>/search/?q=<query_text>"'})
@@ -26,8 +30,8 @@ class Gpt2SearchView(APIView):
         """Used by main frontend App to deal with text."""
         if request.data:
             query = request.data["queryText"]
-            engine = proba_engine(query)
-            json_response = engine.get_cumulative_search_result()
+            engine = Gpt2OddballnessEngine(query)
+            json_response = engine.get_sentence_oddballness()
             # run pipeline here.
             return Response(json_response)
         else:

@@ -1,13 +1,13 @@
 import torch
 from pytorch_transformers import *
-from proba_engine import TransformersLMEngine
+from .proba_engine import TransformersLMEngine
 
 INPUT_TEXT = "I have a dream"
 
 class Gpt2OddballnessEngine(TransformersLMEngine):
-    pretrained_weights = 'gpt2-large'
+    #pretrained_weights = 'gpt2-large'
     #pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
-    #pretrained_weights = 'gpt2'
+    pretrained_weights = 'gpt2'
 
     def __init__(self, text=None):
         tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
