@@ -1,6 +1,10 @@
 import torch
 from pytorch_transformers import *
-from .proba_engine import TransformersLMEngine
+try:
+    from .proba_engine import TransformersLMEngine
+except (SystemError, ImportError):
+    from proba_engine import TransformersLMEngine
+
 
 INPUT_TEXT = "I have a dream"
 
@@ -8,7 +12,7 @@ class BertOddballnessEngine(TransformersLMEngine):
     pretrained_weights = 'bert-large-cased'
 
     def __init__(self, text=None, pretrained_weights=None):
-        if pretrained_weights not None:
+        if pretrained_weights is not None:
             self.pretrained_weights = pretrained_weights
         tokenizer = BertTokenizer.from_pretrained(self.pretrained_weights) # should i change special tokens like beginnigng of text unk and end of text?
         model = BertForMaskedLM.from_pretrained(self.pretrained_weights)

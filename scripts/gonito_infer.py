@@ -9,7 +9,7 @@ Krzysztof J.
 
 import sys
 import argparse
-
+from proba_engines.gpt2_proba_engine import Gpt2OddballnessEngine
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Find indexes of words that need correction')
@@ -22,10 +22,8 @@ def parse_args():
 
 def main(args):
     lines = get_lines(args)
-    for line in lines:
-        print(0,repr(line), end="")
-    result = infer(args, lines)
-    process_result(args, result)
+    indexes = infer(lines)
+    return_result(args,indexes)
 
 
 def get_lines(args):
@@ -47,10 +45,38 @@ def get_lines_from_stdin():
     return sys.stdin.readlines()
 
 
-def infer(args, lines):
-    pass
+def infer(lines):
+    result = []
+    engine = Gpt2OddballnessEngine()
+    for line in lines:
+        line  = line.strip()
+        engine.get_sentence_oddballness(line)
+        print(engine.sentence_data())
+        indexes = find_indexes(line, engine.sentence_data())
+        result.append(indexes)
+    return result
 
-def process_result(args, result):
+
+def find_indexes(line, sentence_data):
+    oddballness_list = get_oddballness_per_word(line, sentence_data)
+    #for element in sentence_data:
+    #    sentence_scores
+    #for index, word in enumerate(line.split()):
+    #    for letter in word
+
+def get_oddballness_per_word(line, sentence_data):
+    sentence_reconstructed = "".join([x["name"] for x in sentence_data])
+    print(sentence_reconstructed, line)
+    assert len(sentence_reconstructed) == len(line)
+    assert sentence_reconstructed == line
+    letter_scores = [oddballness for x in sentence_data for oddballness in x["oddballness"] * len(x["name"]) ]
+    last_id = 0
+    sentence_scores = []
+    #for word in line.split():
+    #    sentence_scores
+        
+
+def return_result(args, indexes):
     pass
 
 if __name__ == "__main__":

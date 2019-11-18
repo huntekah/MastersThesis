@@ -1,16 +1,19 @@
 import torch
 from pytorch_transformers import *
-from .proba_engine import TransformersLMEngine
+try:
+    from .proba_engine import TransformersLMEngine
+except (SystemError, ImportError):
+    from proba_engine import TransformersLMEngine
 
 INPUT_TEXT = "I have a dream"
 
 class Gpt2OddballnessEngine(TransformersLMEngine):
-    #pretrained_weights = 'gpt2-large'
+    pretrained_weights = 'gpt2-large'
     #pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
-    pretrained_weights = 'gpt2'
+    #pretrained_weights = 'gpt2'
 
-    def __init__(self, text=None, pretrained_weights):
-        if pretrained_weights not None:
+    def __init__(self, text=None, pretrained_weights=None):
+        if pretrained_weights is not None:
             self.pretrained_weights = pretrained_weights
         tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
         model = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
