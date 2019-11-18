@@ -9,7 +9,9 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
     #pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
     pretrained_weights = 'gpt2'
 
-    def __init__(self, text=None):
+    def __init__(self, text=None, pretrained_weights):
+        if pretrained_weights not None:
+            self.pretrained_weights = pretrained_weights
         tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
         model = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
         super(Gpt2OddballnessEngine, self).__init__(tokenizer=tokenizer,model=model,text=text)
