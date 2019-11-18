@@ -7,17 +7,44 @@ import fileinput
 from time import time
 
 class create_html():
+    r"""
+    Constructs a BertTokenizer.
+    :class:`~pytorch_transformers.BertTokenizer` runs end-to-end tokenization: punctuation splitting + wordpiece
+
+    Args:
+        vocab_file: Path to a one-wordpiece-per-line vocabulary file
+        do_lower_case: Whether to lower case the input. Only has an effect when do_wordpiece_only=False
+        do_basic_tokenize: Whether to do basic tokenization before wordpiece.
+        max_len: An artificial maximum length to truncate tokenized sequences to; Effective maximum length is always the
+            minimum of this value (if specified) and the underlying BERT model's sequence length.
+        never_split: List of tokens which will never be split during tokenization. Only has an effect when
+            do_wordpiece_only=False
+    """
+
     def __init__(self, text=None, color_threshold = 0.5):
+        r"""
+
+        :param text:
+        :param color_threshold:
+        """
         self.set_text(text)
         self.engine = Gpt2OddballnessEngine(text)
         self.html_parts = []
         self.color_threshold = color_threshold
 
     def set_text(self, text):
+        r"""
+
+        :param text:
+        :return:
+        """
         self.text = text
 
     def create_whole_html(self):
+        r"""
 
+        :return:
+        """
         html_text = self._create_html_header()
         for html_part in self.html_parts:
             html_text += html_part
@@ -27,6 +54,11 @@ class create_html():
         return html_text
 
     def create_html_part(self, text=None):
+        r"""
+
+        :param text:
+        :return:
+        """
         html_text = ""
         self.engine.get_sentence_oddballness(text)
         for token_data in self.engine.sentence_data:
@@ -39,6 +71,10 @@ class create_html():
         
     @staticmethod
     def _create_html_header():
+        r"""
+
+        :return:
+        """
         html_text = """<!doctype html>
 
         <html lang="en">
@@ -54,15 +90,30 @@ class create_html():
 
     @staticmethod
     def _create_html_footer(html_text):
+        r"""
+
+        :param html_text:
+        :return:
+        """
         html_text += "</body></html>"
         return html_text
 
     @staticmethod
     def _append_new_line(html_text):
+        r"""
+
+        :param html_text:
+        :return:
+        """
         html_text += "</br>"
         return html_text
 
     def _color_from_value(self, val):
+        r"""
+
+        :param val:
+        :return:
+        """
         if val > self.color_threshold:
             starthue = 60
             stophue = 0
