@@ -12,7 +12,7 @@ class TransformersLMEngine():
     pretrained_weights = None
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    def __init__(self, tokenizer, model, text=None):
+    def __init__(self, tokenizer, model, text=None, **kwargs):
         r"""
         abstract constructor for TransformersLMEngine
 
@@ -24,6 +24,7 @@ class TransformersLMEngine():
         self.model.to(self.device)
         self.input_text = text
         self._clear_results()
+        self.alpha = 1 if 'alpha' not in kwargs else kwargs['alpha']
 
     @property
     def input_text(self):
@@ -99,7 +100,7 @@ class TransformersLMEngine():
             self._compute_outputs()
             for ix in range(0, len(self.input_ids[0])):
                 token_obj = self._get_token_probability(ix)
-                token_obj["oddballness"] = self._get_oddballness_proba(token_obj["probability"], self.probs[ix - 1]).item()
+                token_obj["oddballness"] = self._get_oddballness_proba(token_obj["probability"], self.probs[ix - 1], alpha=self.alpha).item()
 
                 self.sentence_data.append(token_obj)
         return json.dumps(self.sentence_data)
