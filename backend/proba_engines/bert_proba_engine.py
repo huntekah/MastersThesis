@@ -11,12 +11,13 @@ INPUT_TEXT = "I have a dream"
 class BertOddballnessEngine(TransformersLMEngine):
     pretrained_weights = 'bert-large-cased'
 
-    def __init__(self, text=None, pretrained_weights=None):
+    def __init__(self, text=None, pretrained_weights=None, **kwargs):
         if pretrained_weights is not None:
             self.pretrained_weights = pretrained_weights
-        tokenizer = BertTokenizer.from_pretrained(self.pretrained_weights) # should i change special tokens like beginnigng of text unk and end of text?
-        model = BertForMaskedLM.from_pretrained(self.pretrained_weights)
-        super(BertOddballnessEngine, self).__init__(tokenizer=tokenizer, model=model, text=text)
+        kwargs["tokenizer"] = BertTokenizer.from_pretrained(self.pretrained_weights) # should i change special tokens like beginnigng of text unk and end of text?
+        kwargs["model"] = BertForMaskedLM.from_pretrained(self.pretrained_weights)
+        kwargs["text"] = text
+        super(BertOddballnessEngine, self).__init__(**kwargs)
 
 
     def _compute_outputs(self):
