@@ -1,5 +1,5 @@
-Grammatica error detection dont peek
-====================================
+Grammatica error detection
+==========================
 
 Detect errors in english text.
 
