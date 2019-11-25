@@ -18,7 +18,6 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         kwargs["tokenizer"] = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
         kwargs["model"] = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
         kwargs["text"] = text
-        #super(Gpt2OddballnessEngine, self).__init__(tokenizer=tokenizer,model=model,text=text)
         super(Gpt2OddballnessEngine, self).__init__(**kwargs)
 
     def _compute_outputs(self):

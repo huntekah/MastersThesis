@@ -105,6 +105,8 @@ class TransformersLMEngine():
                 self.sentence_data.append(token_obj)
         return json.dumps(self.sentence_data)
 
+
+
     @staticmethod
     def _get_oddballness_proba(chosen_token_proba, tokens_proba, alpha=1):
         r""" Calculate value of oddballness for token according to F.Graliński's oddballness metric
