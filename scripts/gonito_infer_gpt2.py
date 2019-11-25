@@ -15,7 +15,6 @@ from unidecode import unidecode
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Find indexes of words that need correction')
-    #parser.add_argument('--stdin', action="store_true", default=False, help="Process text from stdin")
     parser.add_argument('--file', type=str, help="Process text from file")
     parser.add_argument('--out', type=str, help="print output to a file instead of stdin")
     parser.add_argument('--alpha', type=float, default=1, help="alpha value for Gpt2 proba engine")
@@ -27,7 +26,6 @@ def parse_args():
 def main(args):
     lines = get_lines(args)
     indexes = infer(args,lines)
-    #print(indexes)
     return_result(args,indexes)
 
 
@@ -59,7 +57,7 @@ def infer(args,lines):
             result.append([])
             continue
         engine.get_sentence_oddballness(line)
-        print(engine.sentence_data)
+        # print(engine.sentence_data)
         indexes = find_indexes(line, engine.sentence_data, args.threshold)
         result.append(indexes)
     return result
@@ -67,7 +65,7 @@ def infer(args,lines):
 
 def find_indexes(line, sentence_data,threshold):
     oddballness_list = get_oddballness_per_word(line, sentence_data)
-    return [i for i,e in enumerate(oddballness_list) if e>threshold]
+    return [i for i,e in enumerate(oddballness_list,1) if e>threshold]
 
 
 def get_oddballness_per_word(line, sentence_data):
@@ -77,35 +75,29 @@ def get_oddballness_per_word(line, sentence_data):
     :param sentence_data: data calculated by engine
     :return: oddballness per word (space separated string)
     """
-    #print([repr(x["name"]) for x in sentence_data])
     sentence_reconstructed = "".join([x["name"] for x in sentence_data[:]]).strip()
-    #print(repr(sentence_reconstructed), repr(line))
-    #assert sentence_reconstructed == line
     letter_scores = [oddballness for x in sentence_data for oddballness in [x["oddballness"]] * len(x["name"]) ]
     letter_scores.pop(0)
-    #assert len(letter_scores) == len(line)
     last_id = 0
 
-    #print(letter_scores)
     sentence_scores = []
-    #import ipdb; ipdb.set_trace()
-    #print(len(letter_scores))
     for word in line.split():
         oddballness_value = max(letter_scores[last_id:last_id + len(word)])
-        #print(word,last_id, len(word),max(letter_scores[last_id:last_id + len(word)]))
         sentence_scores.append(oddballness_value)
         last_id = len(word) + last_id +1
-    sentence_scores[0] = sentence_scores[0]**4 #arbitrary fix for first token
+    sentence_scores[0] = 0#sentence_scores[0]**30 #arbitrary fix for first token
     return sentence_scores
         
 
 def return_result(args, indexes):
+    print(indexes)
     output= "\n".join([" ".join(list(map(str, line))) for line in indexes])
+    print(repr(output))
     if args.out is None:
         print(output)
     else:
-        with open(args.out,"w+") as file_out:
-            file_out.write(output)
+        with open(args.out,"w") as file_out:
+            print(output,file=file_out)
 
 
 if __name__ == "__main__":
