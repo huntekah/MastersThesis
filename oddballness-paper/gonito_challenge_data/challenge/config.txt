@@ -1,1 +1,1 @@
---metric MultiLabel-F0.5 --metric MultiLabel-F2 --precision 4
+--metric Mean/MultiLabel-F0.5 --metric Mean/MultiLabel-F2 --metric MultiLabel-F0.5 --metric MultiLabel-F2 --precision 4
