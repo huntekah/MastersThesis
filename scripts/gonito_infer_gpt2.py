@@ -151,10 +151,6 @@ class InferGPT2():
             oddballness_value = max(letter_scores[last_id:last_id + len(word)])
             sentence_scores.append(oddballness_value)
             last_id = len(word) + last_id + 1
-        try:
-            sentence_scores[0] = sentence_scores[0] ** 200  # arbitrary fix for first token
-        except OverflowError:
-            sentence_scores[0]=0.001
         return sentence_scores
 
     def return_result(self,**kwargs):
@@ -182,4 +178,3 @@ if __name__ == "__main__":
         model.return_result(suffix="_f0.5")
     else:
         model.return_result()
-    # main(args)
