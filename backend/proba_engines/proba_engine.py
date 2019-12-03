@@ -24,7 +24,7 @@ class TransformersLMEngine():
         self.model.to(self.device)
         self.input_text = text
         self._clear_results()
-        self.alpha = 1 if 'alpha' not in kwargs else kwargs['alpha']
+        self.alpha = kwargs.get('alpha', 1)
 
     @property
     def input_text(self):

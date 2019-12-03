@@ -15,10 +15,19 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
     def __init__(self, text=None, pretrained_weights=None, **kwargs):
         if pretrained_weights is not None:
             self.pretrained_weights = pretrained_weights
-        kwargs["tokenizer"] = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
-        kwargs["model"] = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
+        tokenizer = GPT2Tokenizer.from_pretrained(self.pretrained_weights)
+        model = GPT2LMHeadModel.from_pretrained(self.pretrained_weights)
+        self._add_bos_token(tokenizer, model)
+        kwargs["tokenizer"] = tokenizer
+        kwargs["model"] = model
         kwargs["text"] = text
         super(Gpt2OddballnessEngine, self).__init__(**kwargs)
+
+    @staticmethod
+    def _add_bos_token(tokenizer, model):
+        special_tokens_dict = {'cls_token': '<|startoftext|>'}
+        tokenizer.add_special_tokens(special_tokens_dict)
+        model.resize_token_embeddings(len(tokenizer))
 
     def _compute_outputs(self):
         r""" Compute outputs logits and probs for Gpt2LM model """
@@ -37,16 +46,24 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         :return: None
         """
         if val:
-            TransformersLMEngine.input_text.fset(self,val + " <|endoftext|>")
+            TransformersLMEngine.input_text.fset(self,"<|startoftext|> " + val + " <|endoftext|>")
         else:
             TransformersLMEngine.input_text.fset(self,val)
 
     def get_sentence_oddballness(self, text=None):
+        r""" Remove bos_token and eos_token after calling super().get_sentence_oddballness(text)
+
+        :param text:
+        :return:
+        """
         super().get_sentence_oddballness(text)
         self.sentence_data.pop()
-        #self.sentence_data
+        self.sentence_data.pop(0)
+        return self.sentence_data
 
 if __name__ == "__main__":
-    obj = Gpt2OddballnessEngine("I have a dream")
+    obj = Gpt2OddballnessEngine("Proability I have a dream")
+    #obj = Gpt2OddballnessEngine("To be or not to be")
     print(obj.get_sentence_probability())
-    print(obj.get_sentence_oddballness())
+    obj.get_sentence_oddballness()
+    print("\n".join([repr(elem) for elem in obj.sentence_data]))
