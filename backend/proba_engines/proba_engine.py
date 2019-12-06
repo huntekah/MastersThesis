@@ -43,6 +43,7 @@ class TransformersLMEngine():
             self.indexed_tokens = self.tokenizer.encode(self.input_text)
             self.input_ids = torch.tensor([self.indexed_tokens])
             self.input_ids = self.input_ids.to(self.device)
+            self.input_size = len(self.input_ids[0])
             self._clear_results()
 
     def _clear_results(self):
@@ -65,7 +66,7 @@ class TransformersLMEngine():
         self.sentence_data = []
         with torch.no_grad():
             self._compute_outputs()
-            for ix in range(0, len(self.input_ids[0])):
+            for ix in range(self.input_size):
                 token_obj = self._get_token_probability(ix)
                 self.sentence_data.append(token_obj)
         return json.dumps(self.sentence_data)
@@ -98,7 +99,7 @@ class TransformersLMEngine():
         self.sentence_data = []
         with torch.no_grad():
             self._compute_outputs()
-            for ix in range(0, len(self.input_ids[0])):
+            for ix in range(self.input_size):
                 token_obj = self._get_token_probability(ix)
                 token_obj["oddballness"] = self._get_oddballness_proba(token_obj["probability"], self.probs[ix - 1], alpha=self.alpha).item()
 
@@ -131,7 +132,7 @@ class TransformersLMEngine():
             for text_chunk in self._string_to_chunks(input_text):
                 self.input_text = text_chunk  # set the text currently worked on (no bigger than 1024)
                 self._compute_outputs()
-                for ix in range(0, len(self.input_ids[0])):
+                for ix in range(self.input_size):
                     token_obj = {}
                     token_id = self.input_ids[0][ix]
 
@@ -191,7 +192,7 @@ class TransformersLMEngine():
         :return: Array with correction proposals, their probabilities and oddballness scores.
         """
         self.sorted_probs, self.sorted_indices = torch.sort(self.probs[index - 1], descending=True)
-        bt = self._get_best_tokens(index, num_tokens=int(num_tokens / 2))
+        bt = self._get_best_tokens( num_tokens=int(num_tokens / 2))
         st = self._get_surrounding_tokens(index, num_tokens=int(num_tokens / 2))
         print("btst 0:")
         print(torch.cat((bt[0], st[0]), dim=0))
@@ -202,10 +203,9 @@ class TransformersLMEngine():
         # merge results
 
     #TODO
-    def _get_best_tokens(self, index, num_tokens=5):
+    def _get_best_tokens(self, num_tokens=5):
         r""" Return num_tokens tokens that have the highest probability for a given token
 
-        :param index: index in Sentence of a token.
         :param num_tokens: How many correction proposals do you want
         :return: Array with correction proposals, their probabilities and oddballness scores.
         """
