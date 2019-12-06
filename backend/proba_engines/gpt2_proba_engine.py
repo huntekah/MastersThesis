@@ -90,12 +90,13 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
             self._compute_exhaustive_outputs(**kwargs)
             print(f"Oryginal sentence was: \'{self.input_text}\'")
             print(exp(self.sentence_probability))
-            print(self.probas)
+            print(self.probs)
             for ix in range(self.input_size):
                 token_id = self.input_ids[0][ix]
                 token_obj = {}
                 token_obj["name"] = self.tokenizer.decode(token_id.item())
                 token_obj["probability"] = exp(self.sentence_probability)
+                print("suma: ",sum(self.probs[ix]))
                 token_obj["oddballness"] = self._get_oddballness_proba(token_obj["probability"], self.probs[ix],
                                                                        alpha=self.alpha).item()
 
@@ -137,12 +138,13 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
 
     def _compute_alternative_probabilities(self, alternative_tokens, **kwargs):
         oryginal_text = "".join([x for x in self.tokenizer.decode(self.indexed_tokens[1:-1])]).strip()
-        probas = []
-        for ix in range(1, self.input_size - 1):
-            # dla kazdego tokenu, wybierz każdy z tokenów zastęþczych.
+        probs = []
+        probs.append(torch.tensor([sys.float_info.epsilon])) #for <|startoftext|> , to not calculate it
+        for ix in range(1,self.input_size - 1):
+            # dla kazdego tokenu, wybierz każdy z tokenów zastępczych.
             # stwórz nowe zdanie. policz prawdopodobieństwo wystąpienia takiego zdania.
             get_token_name = lambda x: self.tokenizer.decode(self.input_ids[0][x].item())
-            alternate_token_probas = []
+            alternate_token_probs = []
             for alternative_token in alternative_tokens[ix]:
                 new_tokens = [get_token_name(idx)
                               if idx != ix
@@ -156,20 +158,22 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
                 # compute S__i_j
                 sentence_probability = exp(self._get_sentence_log_probability())
                 print(sentence_probability)
-                alternate_token_probas.append(sentence_probability)
+                alternate_token_probs.append(sentence_probability)
                 self.input_text = oryginal_text
-            probas.append(torch.tensor(alternate_token_probas))
-        self.probas = probas
+            probs.append(torch.tensor(alternate_token_probs))
+        self.input_text = oryginal_text
+        probs.append(torch.tensor([sys.float_info.epsilon]))  # for <|endoftext|> , to not calculate it
+        self.probs = probs
 
     # TODO
     # funkcja ktora porzy zmianie alfy oblicza nowe oddballness bez uzycia silnika.
 
 
 if __name__ == "__main__":
-    obj = Gpt2OddballnessEngine("I have a dream")
+    obj = Gpt2OddballnessEngine("I habe a dream")
     # obj = Gpt2OddballnessEngine("To be or not to be")
     # print(obj.get_sentence_probability())
     # obj.get_sentence_oddballness()
-    obj.get_sentence_oddballness_exhausive(complexity=10)
+    obj.get_sentence_oddballness_exhausive(complexity=1000)
     # exit()
     print("\n".join([repr(elem) for elem in obj.sentence_data]))
