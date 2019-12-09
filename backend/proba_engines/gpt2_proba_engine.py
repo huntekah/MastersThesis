@@ -5,6 +5,8 @@ import os
 from pytorch_transformers import *
 from hashlib import md5
 import pickle
+import re, string
+
 try:
     from .proba_engine import TransformersLMEngine
 except (SystemError, ImportError):
@@ -32,6 +34,7 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         kwargs["model"] = model
         kwargs["text"] = text
         super(Gpt2OddballnessEngine, self).__init__(**kwargs)
+        self.oryginal_input_text = text
 
     @staticmethod
     def _add_bos_token(tokenizer, model):
@@ -55,8 +58,11 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         :return: None
         """
         if val:
+            #val = re.sub(r'([^\s\w]|_)+', '', val)
+            #print(val)
             TransformersLMEngine.input_text.fset(self, "<|startoftext|> " + val + " <|endoftext|>")
         else:
+            #self.original_input_text = val
             TransformersLMEngine.input_text.fset(self, val)
 
     def get_sentence_oddballness(self, text=None):
@@ -86,7 +92,8 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         :param complexity: How many alternative tokens should model use?
         :return: an array of objects that have their token name, probability and oddballness computed
         """
-        self.input_text = kwargs.get("text", None)
+        self.oryginal_input_text = kwargs.get("text", self.oryginal_input_text)
+        self.input_text = self.oryginal_input_text
         self.complexity = kwargs.get("complexity", 10)
         if self.is_sentence_data_loadable():
             return self.load_sentence_data()
@@ -144,7 +151,7 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         return alternative_tokens
 
     def _compute_alternative_probabilities(self, alternative_tokens, **kwargs):
-        oryginal_text = "".join([x for x in self.tokenizer.decode(self.indexed_tokens[1:-1])]).strip()
+        #oryginal_text = "".join([x for x in self.tokenizer.decode(self.indexed_tokens[1:-1])]).strip()
         probs = [torch.tensor([sys.float_info.epsilon])] #for <|startoftext|> , to not calculate it
         self.normalized_token_prob = [torch.tensor([sys.float_info.epsilon])]
 
@@ -168,18 +175,16 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
                 # print(sentence_probability)
 
                 alternate_token_probs.append(sentence_probability)
-                self.input_text = oryginal_text
+                # print(f"orig: {self.oryginal_input_text}")
+                self.input_text = self.oryginal_input_text
             alternate_token_probs.append(self.sentence_probability) #add probability for the original sentence
             normalized_alternate_token_probs = torch.softmax(torch.tensor(alternate_token_probs),0) #make it a probability distribution
             probs.append(normalized_alternate_token_probs) #save the alternative probabilities
             self.normalized_token_prob.append(normalized_alternate_token_probs[-1]) # add normalized sentence probability as probability for token ix
-        self.input_text = oryginal_text
+        self.input_text = self.oryginal_input_text
         probs.append(torch.tensor([sys.float_info.epsilon]))  # for <|endoftext|> , to not calculate it
         self.normalized_token_prob.append(torch.tensor([sys.float_info.epsilon]))
         self.probs = probs
-
-    # TODO
-    # funkcja ktora porzy zmianie alfy oblicza nowe oddballness bez uzycia silnika.
 
     def save_sentence_data(self):
         f_name = self._get_sentence_data_file_name()
@@ -208,7 +213,8 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         return os.path.join("./", "saved_sentence_data", name)
 
 if __name__ == "__main__":
-    obj = Gpt2OddballnessEngine("I have a dream")
+    #obj = Gpt2OddballnessEngine("I have a dream")
+    obj = Gpt2OddballnessEngine(r"Ten or eleven years at school make them tired in spite of pupils don'tice it")
     # obj = Gpt2OddballnessEngine("To be or not to be")
     # print(obj.get_sentence_probability())
     # obj.get_sentence_oddballness()

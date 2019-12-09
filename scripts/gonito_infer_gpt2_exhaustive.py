@@ -40,7 +40,7 @@ class InferGPT2():
         self.indexes = None
         self.best_threshold = None
         self.multilabel_fbeta = MeanMultiLabelFbeta()
-        self.complexity = kwargs.get("complexity",50)
+        self.complexity = kwargs.get("complexity",20)
 
     def __call__(self, *args, **kwargs):
         self.compute_model()
@@ -78,11 +78,12 @@ class InferGPT2():
             # result.append(indexes)
         # return result
 
-    def find_best_threshold(self, min_thr=0.0, max_thr=1.01, precision=5, maxdepth=10, beta=0.5):
+    def find_best_threshold(self, min_thr=0.0, max_thr=1.0-0.000000001, precision=5, maxdepth=10, beta=0.5):
         self.score_type=f"F{beta}"
         expected = self.read_expected()
         scores = []
-        for threshold in arange(min_thr, max_thr, (max_thr - min_thr) / precision):
+        step = (max_thr - min_thr) / precision
+        for threshold in arange(min_thr, max_thr + step, step ):
             indexes = self.find_indexes(threshold)
             score = self.multilabel_fbeta(expected, indexes,beta=beta)
             #print(f"Score {score} for threshold {threshold}")
@@ -173,10 +174,10 @@ if __name__ == "__main__":
     model = InferGPT2(**vars(args))
     model()
     if args.expected is not None:
-        model.find_best_threshold(precision=10, beta=2.0)
+        model.find_best_threshold(precision=17, beta=2.0, maxdepth=3 )
         model.return_result(suffix="_f2.0")
         model.best_threshold = None
-        model.find_best_threshold(precision=10, beta=0.5)
+        model.find_best_threshold(precision=17, beta=0.5, maxdepth=3)
         model.return_result(suffix="_f0.5")
     else:
         model.return_result()
