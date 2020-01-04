@@ -1,4 +1,5 @@
-dir="../oddballness-paper/gonito_challenge_data/challenge/dev-0/";
+#dir="../oddballness-paper/gonito_challenge_data/challenge/dev-0/";
+dir="../oddballness-paper/challenge_v3/dev-0/";
 LC_NUMERIC=C
 echo -e "threshold\tMean/Multilabel-F2.0\tMean/Multilabel-F2.0\talpha" | tee -a results_baseline_mean.tmp
 result=$(python gonito_infer_gpt2_probability_baseline.py --file ${dir}in.tsv  --out ${dir}out.tsv --expected ${dir}expected.tsv );

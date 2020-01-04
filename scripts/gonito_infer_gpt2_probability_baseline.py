@@ -141,6 +141,9 @@ class InferGPT2():
         """
         # sentence_reconstructed = "".join([x["name"] for x in sentence_data[:]]).strip()
         letter_scores = [oddballness for x in sentence_data for oddballness in [x["probability"]] * len(x["name"])]
+        import ipdb; ipdb.set_trace();
+        print("good bye")
+        exit()
         letter_scores.pop(0)
         last_id = 0
 
