@@ -9,6 +9,7 @@ Krzysztof J.
 
 import sys
 import argparse
+import spacy
 from numpy import arange
 from tqdm import tqdm
 from unidecode import unidecode
@@ -16,6 +17,8 @@ from unidecode import unidecode
 from statistics import mean
 from proba_engines.gpt2_proba_engine import Gpt2OddballnessEngine
 from multiLabelFbetaScore import MeanMultiLabelFbeta
+
+nlp = spacy.load("en_core_web_sm")
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Find indexes of words that need correction')
@@ -74,7 +77,7 @@ class InferGPT2():
             # print(engine.sentence_data)
 
 
-    def find_best_threshold(self, min_thr=0.0, max_thr=1.01, precision=5, maxdepth=10, beta=0.5):
+    def find_best_threshold(self, min_thr=0.0, max_thr=1.01, precision=5, maxdepth=4, beta=0.5):
         self.score_type=f"F{beta}"
         expected = self.read_expected()
         scores = []
@@ -133,25 +136,45 @@ class InferGPT2():
 
     @staticmethod
     def _get_oddballness_per_word(line, sentence_data):
-        r""" Calculate oddballness for each word as a max(token_0...token_i) for 0..i → word
+        r""" Calculate oddballness for each word as a max(token_0...token_i) for 0..i → word. Use Spacy tokenizer "en_core_web_sm" model
 
         :param line: input line
         :param sentence_data: data calculated by engine
         :return: oddballness per word (space separated string)
         """
-        # sentence_reconstructed = "".join([x["name"] for x in sentence_data[:]]).strip()
+        sentence_reconstructed = "".join([x["name"] for x in sentence_data[:]]).strip() #sentence according to gpt2, commas may differ
         letter_scores = [oddballness for x in sentence_data for oddballness in [x["probability"]] * len(x["name"])]
-        import ipdb; ipdb.set_trace();
-        print("good bye")
-        exit()
-        letter_scores.pop(0)
-        last_id = 0
+        letter_scores.pop(0) # strip leading space in first token
+        letter_score_pairs = [(letter,score) for letter, score in zip(list(sentence_reconstructed), letter_scores)]
 
         sentence_scores = []
-        for word in line.split():
-            oddballness_value = max(letter_scores[last_id:last_id + len(word)])
+        #for word in line.split():
+        print([(x["name"], x["probability"]) for x in sentence_data])
+        print(line)
+
+        last_id = 0
+        
+        for token in nlp(line.strip()): # tutaj sprawdzic czy dziala tokenizacja z uzyciem spacy (czy dobrze laczy score z literek do odpowiednich tokenów)
+            word = token.text
+            values_in_word = []
+            for letter in word:
+                print(f"\tletter is {repr(letter)} in word {repr(word)}")
+                while letter_score_pairs[last_id][0] != letter: # compare letters
+                    print(repr(letter_score_pairs[last_id][0]))
+                    last_id += 1
+                values_in_word.append(letter_score_pairs[last_id][1]) # append score
+                last_id += 1
+            oddballness_value = max(values_in_word)
             sentence_scores.append(oddballness_value)
-            last_id = len(word) + last_id + 1
+            print(word," - ",values_in_word, " - ", oddballness_value) 
+
+#        for token in nlp(line): # tutaj sprawdzic czy dziala tokenizacja z uzyciem spacy (czy dobrze laczy score z literek do odpowiednich tokenów)
+#            word = token.text
+#            oddballness_value = max(letter_scores[last_id:last_id + len(word)])
+#            print(word," - ",letter_scores[last_id:last_id + len(word)], " - ", oddballness_value) 
+#            sentence_scores.append(oddballness_value)
+#            last_id = len(word) + last_id + 1
+        exit()
         return sentence_scores
 
     def return_result(self,**kwargs):

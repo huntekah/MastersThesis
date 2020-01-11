@@ -174,10 +174,10 @@ if __name__ == "__main__":
     model = InferGPT2(**vars(args))
     model()
     if args.expected is not None:
-        model.find_best_threshold(precision=17, beta=2.0, maxdepth=3 )
+        model.find_best_threshold(precision=101, beta=2.0, maxdepth=2 )
         model.return_result(suffix="_f2.0")
         model.best_threshold = None
-        model.find_best_threshold(precision=17, beta=0.5, maxdepth=3)
+        model.find_best_threshold(precision=101, beta=0.5, maxdepth=2)
         model.return_result(suffix="_f0.5")
     else:
         model.return_result()
