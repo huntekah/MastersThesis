@@ -1,0 +1,1 @@
+--metric Mean/MultiLabel-F0.5:N<Mean>N<F0.5> --metric Mean/MultiLabel-F2:N<Mean>N<F2> --metric MultiLabel-F0.5:P<2>N<Total>N<F0.5> --metric MultiLabel-F2:P<2>N<Total>N<F2> --metric Accuracy:s<^(\d+)(\s\d+)*$><\1>P<2>N<AccFstError> --metric Accuracy:s<^(\d+)(\s\d+)*$><WRONG>P<2>N<AccAnyError>  --precision 4 -B 200
