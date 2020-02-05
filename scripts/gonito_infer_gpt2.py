@@ -45,12 +45,12 @@ class InferGPT2(AbstractInference):
 
 
 
-metrics = [quote("Mean/MultiLabel-F0.5"),
-        quote("Mean/MultiLabel-F2"), 
-        quote("MultiLabel-F0.5:P<2>N<F0.5>"), 
-        quote("MultiLabel-F2:P<2>N<F2>"),
-        quote("Accuracy:s<^(\d+)(\s\d+)*$><\1>P<2>N<AccFstError>"),
-        quote("Accuracy:s<^(\d+)(\s\d+)*$><WRONG>P<2>N<AccAnyError>")]
+metrics = [quote(r"Mean/MultiLabel-F0.5"),
+        quote(r"Mean/MultiLabel-F2"), 
+        quote(r"MultiLabel-F0.5:P<2>N<F0.5>"), 
+        quote(r"MultiLabel-F2:P<2>N<F2>"),
+        quote(r"Accuracy:s<^(\d+)(\s\d+)*$><\1>P<2>N<AccFstError>"),
+        quote(r"Accuracy:s<^(\d+)(\s\d+)*$><WRONG>P<2>N<AccAnyError>")]
 
 def run_inference(args):
     model = InferGPT2(**vars(args))

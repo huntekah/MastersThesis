@@ -21,12 +21,19 @@ from proba_engines.gpt2_proba_engine import Gpt2OddballnessEngine
 from multiLabelFbetaScore import MeanMultiLabelFbeta
 from utils.detokenize import Detokenizer
 
-metrics = [r"Mean/MultiLabel-F0.5",
-        r"Mean/MultiLabel-F2", 
-        r"MultiLabel-F0.5:P<2>N<F0.5>", 
-        r"MultiLabel-F2:P<2>N<F2>",
-        r"Accuracy:s<^(\d+)(\s\d+)*$><\1>P<2>N<AccFstError>",
-        r"Accuracy:s<^(\d+)(\s\d+)*$><WRONG>P<2>N<AccAnyError>"]
+#metrics = [r"Mean/MultiLabel-F0.5",
+#        r"Mean/MultiLabel-F2", 
+#        r"MultiLabel-F0.5:P<2>N<F0.5>", 
+#        r"MultiLabel-F2:P<2>N<F2>",
+#        r"Accuracy:s<^(\d+)(\s\d+)*$><\1>P<2>N<AccFstError>",
+#        r"Accuracy:s<^(\d+)(\s\d+)*$><WRONG>P<2>N<AccAnyError>"]
+
+metrics = [shlex.quote(r"Mean/MultiLabel-F0.5"),
+        shlex.quote(r"Mean/MultiLabel-F2"), 
+        shlex.quote(r"MultiLabel-F0.5:P<2>N<F0.5>"), 
+        shlex.quote(r"MultiLabel-F2:P<2>N<F2>"),
+        shlex.quote(r"Accuracy:s<^(\d+)(\s\d+)*$><\1>P<2>N<AccFstError>"),
+        shlex.quote(r"Accuracy:s<^(\d+)(\s\d+)*$><WRONG>P<2>N<AccAnyError>")]
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Find indexes of words that need correction')
