@@ -1,6 +1,6 @@
 LC_NUMERIC=C
 alpha=1.0
-threshold=0.09375
+threshold=0.25
 #challenge_dir="../oddballness-paper/gonito_challenge_data/challenge"
 challenge_dir="../oddballness-paper/challenge_v6.2/";
 results_dir="${challenge_dir}/gpt2-probability-a${alpha}-t${threshold}"

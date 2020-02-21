@@ -1,6 +1,6 @@
 import torch
 from math import exp
-from pytorch_transformers import *
+from transformers import *
 import torch.nn.functional as F
 import json
 import sys
@@ -10,8 +10,8 @@ import sys
 
 class TransformersLMEngine():
     pretrained_weights = None
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
+    #device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = 'cpu'
     def __init__(self, tokenizer, model, text=None, **kwargs):
         r"""
         abstract constructor for TransformersLMEngine
@@ -118,6 +118,7 @@ class TransformersLMEngine():
         :return: oddballness value
         """
         oddballness = torch.sum(F.relu(tokens_proba - chosen_token_proba) ** alpha)
+        #oddballness = (1 - (chosen_token_proba * torch.log2(torch.tensor(chosen_token_proba))) /  torch.sum(tokens_proba * torch.log2(tokens_proba))) ** alpha
         return oddballness
 
     #TODO

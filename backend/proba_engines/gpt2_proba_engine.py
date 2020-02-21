@@ -2,7 +2,7 @@
 import sys
 import torch
 import os
-from pytorch_transformers import *
+from transformers import *
 from hashlib import md5
 import pickle
 import re, string
@@ -19,10 +19,10 @@ INPUT_TEXT = "I have a dream"
 
 
 class Gpt2OddballnessEngine(TransformersLMEngine):
-    pretrained_weights = 'gpt2-large'
+    #pretrained_weights = 'gpt2-large'
 
-    # pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
-    # pretrained_weights = 'gpt2'
+    #pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
+    pretrained_weights = 'gpt2'
 
     def __init__(self, text=None, pretrained_weights=None, **kwargs):
         if pretrained_weights is not None:
@@ -208,7 +208,7 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         return self.sentence_data
 
     def _get_sentence_data_file_name(self):
-        text_to_encode = self.input_text + str(self.complexity)
+        text_to_encode = self.pretrained_weights + self.input_text + str(self.complexity)
         name = md5(bytes(text_to_encode, encoding='utf-8')).hexdigest() + ".pickle"
         return os.path.join("./", "saved_sentence_data", name)
 

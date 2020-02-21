@@ -44,6 +44,7 @@ def parse_args():
     parser.add_argument('--threshold', type=float, default=0.85,
                         help="threshold value when we assume a certain word is faulty")
     parser.add_argument('--expected', type=str, help="File with expected output to calculate Fbeta score")
+    parser.add_argument('--complexity', type=int, default=50, help="How many alternative tikens should model take into account?")
     args = parser.parse_args()
     return args
 

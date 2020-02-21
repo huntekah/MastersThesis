@@ -1,8 +1,8 @@
 LC_NUMERIC=C
 #alpha=1.15
 #threshold=0.909
-thresholds=(	0.234375	0.375	0.421875	0.8125	0.828125)
-alphas=(	1.15	1.25	1.25	1.05	1.05)
+thresholds=(	0.8125	0.1875	0.484375)
+alphas=(	1.05	1.25	1.15)
 
 #thresholds=(	0.8125)
 #alphas=(	1.05)
@@ -14,7 +14,7 @@ for idx in "${!thresholds[@]}";do
 	threshold=${thresholds[$idx]}
 	echo threshold $threshold alpha $alpha
 
-	results_dir="${challenge_dir}/gpt2-oddballness-a${alpha}-t${threshold}"
+	results_dir="${challenge_dir}/gpt2-oddballness-XL-FT-a${alpha}-t${threshold}"
 	mkdir -p $results_dir
 
 	for folder in dev-0 test-A; do
