@@ -213,11 +213,13 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         return os.path.join("./", "saved_sentence_data", name)
 
 if __name__ == "__main__":
+    sentence = "I am the man,who dont dont know.And who won't. be doing"
     #obj = Gpt2OddballnessEngine("I have a dream")
-    obj = Gpt2OddballnessEngine(r"Ten or eleven years at school make them tired in spite of pupils don'tice it")
+    obj = Gpt2OddballnessEngine(sentence)
+    # obj = Gpt2OddballnessEngine(r"Ten or eleven years at school make them tired in spite of pupils don'tice it")
     # obj = Gpt2OddballnessEngine("To be or not to be")
     # print(obj.get_sentence_probability())
-    # obj.get_sentence_oddballness()
-    obj.get_sentence_oddballness_exhausive(complexity=5)
+    obj.get_sentence_oddballness()
+    # obj.get_sentence_oddballness_exhausive(complexity=5)
     # exit()
     print("\n".join([repr(elem) for elem in obj.sentence_data]))
