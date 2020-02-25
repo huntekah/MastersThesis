@@ -45,7 +45,6 @@ six==1.12.0
 sklearn==0.0
 spacy==2.2.1
 sqlparse==0.3.0
-srsly==1.0.0
 tabview==1.4.4
 thinc==7.1.1
 tokenizers==0.0.11

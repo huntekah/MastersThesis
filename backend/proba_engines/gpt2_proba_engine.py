@@ -44,6 +44,8 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
 
     def _compute_outputs(self):
         r""" Compute outputs logits and probs for Gpt2LM model """
+        if self.is_compute_outputs_loadable():
+            return self.load_compute_outputs_data()
         self.outputs = self.model(input_ids=self.input_ids, labels=self.input_ids)
         loss, prediction_scores = self.outputs[:2]
         self.logits = prediction_scores[0]
@@ -187,17 +189,27 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         self.probs = probs
 
     def save_sentence_data(self):
-        f_name = self._get_sentence_data_file_name()
+        f_name = self._get_sentence_data_file_name(**kwargs)
         os.makedirs(os.path.dirname(f_name), exist_ok=True)
         with open(f_name,"wb") as sentence_data_file:
             pickle.dump((self.sentence_data, self.probs), sentence_data_file)
+    
+    def save_compute_outputs(self):
+        f_name = self._get_sentence_data_file_name(**kwargs)
+        os.makedirs(os.path.dirname(f_name), exist_ok=True)
+        with open(f_name,"wb") as sentence_data_file:
+            pickle.dump((self.outputs, self.logits, self.probs), sentence_data_file)
 
-    def is_sentence_data_loadable(self):
-        f_name = self._get_sentence_data_file_name()
+    def is_sentence_data_loadable(self, **kwargs): 
+        f_name = self._get_sentence_data_file_name(**kwargs)
+        return os.path.isfile(f_name)
+    
+    def is_compute_outputs_loadable(self, **kwargs):
+        f_name = self._get_compute_outputs_file_name(**kwargs)
         return os.path.isfile(f_name)
 
     def load_sentence_data(self):
-        f_name = self._get_sentence_data_file_name()
+        f_name = self._get_sentence_data_file_name(**kwargs)
         with open(f_name, "rb") as sentence_data_file:
             self.sentence_data, self.probs = pickle.load(sentence_data_file)
         for ix in range(len(self.sentence_data)):
@@ -207,10 +219,35 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         self.sentence_data.pop(0)
         return self.sentence_data
 
-    def _get_sentence_data_file_name(self):
-        text_to_encode = self.pretrained_weights + self.input_text + str(self.complexity)
-        name = md5(bytes(text_to_encode, encoding='utf-8')).hexdigest() + ".pickle"
-        return os.path.join("./", "saved_sentence_data", name)
+    def load_compute_outputs_data(self):
+        f_name = self._get_sentence_data_file_name(**kwargs)
+        with open(f_name, "rb") as sentence_data_file:
+            self.outputs, self.logits, self.probs = pickle.load(sentence_data_file)
+    
+    def _get_sentence_data_file_name(self, **kwargs):
+        text_to_encode = self.pretrained_weights +\
+                                self.input_text +\
+                                str(self.complexity)
+        suffix = "_sentence_data"
+        directory = "saved_sentence_data"
+        return self._get_data_filename(self, suffix, directory, text_to_encode)
+    
+    def _get_compute_outputs_file_name(self, **kwargs):
+        text_to_encode = self.pretrained_weights +\
+                                self.input_text +\
+                                "COMPUTE_OUTPUTS"
+        suffix = "_compute_outputs"
+        directory = "saved_computed_outputs"
+        return self._get_data_filename(self, suffix, directory, text_to_encode)
+
+    def _get_data_filename(self, suffix="", directory="", text_to_encode=""):
+        if text_to_encode == "":
+            text_to_encode = self.pretrained_weights +\
+                                self.input_text +\
+                                str(self.complexity)
+        name = md5(bytes(text_to_encode, encoding='utf-8')).hexdigest() + suffix +\
+            ".pickle"
+        return os.path.join("./", directory, name)
 
 if __name__ == "__main__":
     sentence = "I am the man,who dont dont know.And who won't. be doing"
