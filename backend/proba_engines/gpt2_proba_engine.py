@@ -21,8 +21,8 @@ INPUT_TEXT = "I have a dream"
 class Gpt2OddballnessEngine(TransformersLMEngine):
     #pretrained_weights = 'gpt2-large'
 
-    #pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
-    pretrained_weights = 'gpt2'
+    pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
+    #pretrained_weights = 'gpt2'
 
     def __init__(self, text=None, pretrained_weights=None, **kwargs):
         if pretrained_weights is not None:

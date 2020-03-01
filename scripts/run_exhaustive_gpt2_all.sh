@@ -92,7 +92,7 @@ commit_and_push_to_gonito() {
 	wd=$(pwd)
 	cd $repo
 	git commit -m "Automatic submission for gpt2-xl bidirectional (exhaustive) with $complexity complexity, optimized for $optimized_for" --allow-empty
-	git push --dry-run origin automatic-submissions
+	git push origin automatic-submissions
 	cd $wd
 }
 
