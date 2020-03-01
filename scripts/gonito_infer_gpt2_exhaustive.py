@@ -29,6 +29,10 @@ class InferGPT2(AbstractInference):
             self.engine.get_sentence_oddballness_exhausive(text=line,complexity=self.complexity)
             self.sentence_data.append((self.engine.sentence_data))
 
+    def _get_score_per_word(self, line, sentence_data):
+        return self.get_oddballness_per_word(line, sentence_data)
+
+
     @staticmethod
     def get_oddballness_per_word(line,sentence_data):
         r""" Calculate oddballness for each word as a max(token_0...token_i) for 0..i → word. Use Spacy tokenizer "en_core_web_sm" model

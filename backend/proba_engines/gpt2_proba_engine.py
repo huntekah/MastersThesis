@@ -44,12 +44,14 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
 
     def _compute_outputs(self):
         r""" Compute outputs logits and probs for Gpt2LM model """
-        if self.is_compute_outputs_loadable():
-            return self.load_compute_outputs_data()
+        #commented out cause it took too much space
+        #if self.is_compute_outputs_loadable():
+        #    return self.load_compute_outputs_data()
         self.outputs = self.model(input_ids=self.input_ids, labels=self.input_ids)
         loss, prediction_scores = self.outputs[:2]
         self.logits = prediction_scores[0]
         self.probs = torch.softmax(self.logits, 1)
+        #self.save_compute_outputs()
 
     @TransformersLMEngine.input_text.setter
     def input_text(self, val):
@@ -188,39 +190,56 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         self.normalized_token_prob.append(torch.tensor([sys.float_info.epsilon]))
         self.probs = probs
 
-    def save_sentence_data(self):
-        f_name = self._get_sentence_data_file_name(**kwargs)
+    def save_sentence_data(self,**kwargs):
+        f_name = self._get_sentence_data_file_name(**kwargs).format(self.complexity)
         os.makedirs(os.path.dirname(f_name), exist_ok=True)
         with open(f_name,"wb") as sentence_data_file:
             pickle.dump((self.sentence_data, self.probs), sentence_data_file)
     
-    def save_compute_outputs(self):
-        f_name = self._get_sentence_data_file_name(**kwargs)
-        os.makedirs(os.path.dirname(f_name), exist_ok=True)
-        with open(f_name,"wb") as sentence_data_file:
-            pickle.dump((self.outputs, self.logits, self.probs), sentence_data_file)
-
     def is_sentence_data_loadable(self, **kwargs): 
         f_name = self._get_sentence_data_file_name(**kwargs)
-        return os.path.isfile(f_name)
-    
-    def is_compute_outputs_loadable(self, **kwargs):
-        f_name = self._get_compute_outputs_file_name(**kwargs)
-        return os.path.isfile(f_name)
+        res = False
+        for i in range(self.complexity,100):
+            res = res or os.path.isfile(f_name.format(i))
+            if res:
+                break
+        return res
 
-    def load_sentence_data(self):
+    def load_sentence_data(self, **kwargs):
         f_name = self._get_sentence_data_file_name(**kwargs)
+        source_complexity = 0
+        for i in range(self.complexity,100):
+            if os.path.isfile(f_name.format(i)):
+                f_name = f_name.format(i)
+                source_complexity = i
+                break
+        complexity_diff = self.complexity - source_complexity - 1
         with open(f_name, "rb") as sentence_data_file:
             self.sentence_data, self.probs = pickle.load(sentence_data_file)
+        #print("_"*20)
+        #print(len(self.probs))
+        #print(len(self.probs[1]))
+        probs = [torch.tensor([sys.float_info.epsilon])]
+        for prob in self.probs[1:-1]:
+            new_prob = torch.softmax(torch.log(torch.cat((prob[:complexity_diff or None],prob[-1:]))),0)
+            probs.append(new_prob)
+        probs.append(torch.tensor([sys.float_info.epsilon]))  # for <|endoftext|>
+        self.probs = probs
+
+        #print(len(self.probs))
+        #print(len(self.probs[1]))       
         for ix in range(len(self.sentence_data)):
-            self.sentence_data[ix]["oddballness"] = self._get_oddballness_proba(self.sentence_data[ix]["probability"], self.probs[ix],
-                                                                   alpha=self.alpha).item()
+            self.sentence_data[ix]["probability"] = self.probs[ix][-1]
+            self.sentence_data[ix]["oddballness"] = \
+                    self._get_oddballness_proba(self.sentence_data[ix]["probability"], \
+                    self.probs[ix],\
+                    alpha=self.alpha).item()
         self.sentence_data.pop()
         self.sentence_data.pop(0)
         return self.sentence_data
 
-    def load_compute_outputs_data(self):
-        f_name = self._get_sentence_data_file_name(**kwargs)
+    def load_compute_outputs_data(self, **kwargs):
+        f_name =  self._get_compute_outputs_file_name(**kwargs)
         with open(f_name, "rb") as sentence_data_file:
             self.outputs, self.logits, self.probs = pickle.load(sentence_data_file)
     
@@ -228,18 +247,10 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         text_to_encode = self.pretrained_weights +\
                                 self.input_text +\
                                 str(self.complexity)
-        suffix = "_sentence_data"
+        suffix = "_sentence_data_{}"
         directory = "saved_sentence_data"
-        return self._get_data_filename(self, suffix, directory, text_to_encode)
+        return self._get_data_filename(suffix, directory, text_to_encode)
     
-    def _get_compute_outputs_file_name(self, **kwargs):
-        text_to_encode = self.pretrained_weights +\
-                                self.input_text +\
-                                "COMPUTE_OUTPUTS"
-        suffix = "_compute_outputs"
-        directory = "saved_computed_outputs"
-        return self._get_data_filename(self, suffix, directory, text_to_encode)
-
     def _get_data_filename(self, suffix="", directory="", text_to_encode=""):
         if text_to_encode == "":
             text_to_encode = self.pretrained_weights +\

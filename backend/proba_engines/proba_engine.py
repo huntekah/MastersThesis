@@ -10,8 +10,8 @@ import sys
 
 class TransformersLMEngine():
     pretrained_weights = None
-    #device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    device = 'cpu'
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    #device = 'cpu'
     def __init__(self, tokenizer, model, text=None, **kwargs):
         r"""
         abstract constructor for TransformersLMEngine

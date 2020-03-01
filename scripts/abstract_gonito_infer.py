@@ -151,7 +151,7 @@ class AbstractInference():
     @staticmethod
     def _find_new_threshold_boundaries(scores):
         max_average = 0.0
-        best_boundaries = (0, 0)
+        best_boundaries = (scores[0],scores[1]) # initial boundaries
         for low, high in zip(scores, scores[1:]):
             low_thr, low_score = low
             high_thr, high_score = high
