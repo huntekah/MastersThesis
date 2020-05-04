@@ -4,7 +4,7 @@ wil_tgz="wil.tar.gz"
 wil_dir=$corpora_dir/"wil"
 fce_tgz="fce.tar.gz"
 fce_dir=$corpora_dir/"fce"
-challenge_dir="challenge"
+challenge_dir="challenge_v2"
 scripts_dir="scripts"
 
 function download_corpora(){

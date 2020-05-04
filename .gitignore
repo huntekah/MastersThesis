@@ -127,3 +127,4 @@ dmypy.json
 #custom added
 .idea
 /scripts/gpt2_parsed_document_*.html
+/oddballness-paper/

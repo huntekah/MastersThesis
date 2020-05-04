@@ -24,30 +24,8 @@ def append_diffs(fh, a, b):
 
 
 def append_indices(fh,a,b):
-    #diffs = [token[2:] if token[2:].isalpha() and (token[0] == "+" or token[0] == "-") for token in difflib.ndiff(a,b)]
-    #print(a,"\t",b)
     indices = get_indices(a,b, policy="damerau-levenshtein")
-#    diffs = [token for token in difflib.ndiff(a,b)]
-#    index_a=0
-#    import ipdb; ipdb.set_trace()
-#    for word in diffs:
-#        if word[0] == "-":
-#            if len(indices) == 0 or indices[-1] != index_a:
-#                index_a+=1 
-#                indices.append(index_a)
-#            continue
-#        elif word[0] == " ":
-#            index_a+=1 
-#            continue
-#        elif word[0] == "+":
-#            if len(indices) == 0 or indices[-1] != index_a:
-#                indices.append(index_a)
-#            continue
-#        else:
-#            continue
-#    ipdb.set_trace()
-    #print([a[i] for i in indices])
-    fh.write(" ".join([str(i) for i in indices])+"\n")
+    fh.write(" ".join([str(i+1) for i in indices])+"\n")
             
 def handle_diffs(args, cor, orig):
     if args.out_deletions is not None:
