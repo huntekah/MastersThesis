@@ -1,5 +1,6 @@
 #!/bin/bash
 #1. choose parameter of complexity
+set -x
 #2. for each complexity do:
 #	3. create fine tune results
 #	4. for each best result perform evaluation
@@ -41,13 +42,14 @@ clone_gonito_repo() {
 	rm -rf $repo
 	mkdir -p $HOME"/repos"
 	git clone --single-branch -- ssh://gitolite@gonito.net/huntekah/grammatical-error-detection $repo;
-	$(cd $repo;
+	(cd $repo;
 	#git pull git://gonito.net/grammatical-error-detection
 
 	git config user.name "anon-0654f8b176c00a8a"
 	git config user.email "anon-0654f8b176c00a8a@wp.pl"
 	git pull origin master
 	git checkout -b automatic-submissions
+	git pull origin automatic-submissions
 )
 	cd $wd
 }
@@ -81,7 +83,7 @@ params:
       - threshold: ${t}
       - complexity: ${c}
 EOF
-
+	cp ${repo}/gonito.yaml "../oddballness-paper/challenge_v6.2/gpt2-oddballness-exhaustive-XL-a${a}-t${t}-c${c}/"
 	$(cd $repo; git add ${repo}/gonito.yaml)
 }
 
