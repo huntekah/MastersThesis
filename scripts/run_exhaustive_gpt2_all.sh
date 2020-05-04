@@ -48,6 +48,7 @@ clone_gonito_repo() {
 	git config user.email "anon-0654f8b176c00a8a@wp.pl"
 	git pull origin master
 	git checkout -b automatic-submissions
+    git pull origin automatic-submissions
 )
 	cd $wd
 }
