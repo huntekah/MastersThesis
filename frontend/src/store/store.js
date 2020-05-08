@@ -8,17 +8,31 @@ export const store = new Vuex.Store({
   strict: true,
   state: {
     inputText: '',
+    outputData: {},
     fileIsLoaded: false,
     loadingFile: false
   },
+
   getters: {
     inputText: (state) => {
       return state.inputText
+    },
+    outputData: (state) => {
+      return state.outputData
     }
   },
+
   mutations: {
     editInputText: (state, payload) => {
       state.inputText = payload
+    },
+    updateOutputData: (state, payload) => {
+      state.outputData = payload
+    },
+    applyCorrection: (state, {correction, index}) => {
+      state.outputData[index].name = correction
+      state.outputData[index].underlined = false
+      // state.inputText = state.outputData.map(e => e.name).join();
     },
     fileIsLoaded: state => {
       state.fileIsLoaded = true
@@ -30,9 +44,20 @@ export const store = new Vuex.Store({
       state.loadingFile = false
     }
   },
+
   actions: {
     editInputText: (context, payload) => {
       context.commit('editInputText', payload)
+    },
+    applyCorrection: ({state, commit}, {correction, index}) => {
+      var sentence = state.outputData.map((e,i) => {
+        return ((i == index) ? correction : e.name);
+      }).join("");
+      commit('applyCorrection',{correction, index})
+      commit('editInputText', sentence)
+    },
+    updateOutputData: (context, payload) => {
+      context.commit('updateOutputData', payload)
     },
     fileIsLoaded: context => {
       context.commit('fileIsLoaded')
@@ -40,18 +65,14 @@ export const store = new Vuex.Store({
     sendInputTextToEngine: context => {
       // const formData = new FormData()
       console.log(context.getters.inputText)
-      // axios.get('http://localhost:8000/search/', {
-      //   'q': 'Ala ma kota',
-      //   'crossdomain': true
-      // }).catch(function (response) {
-      //       // handle error
-      //         console.log(response)
-      //       })
+
       axios.post('http://localhost:8000/search/', {
         queryText: context.getters.inputText
       }).then(function (response) {
         // handle success
         console.log(response)
+        console.log(response.data)
+        context.commit('updateOutputData', response.data)
       })
         .catch(function (response) {
         // handle error

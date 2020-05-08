@@ -19,10 +19,10 @@ INPUT_TEXT = "I have a dream"
 
 
 class Gpt2OddballnessEngine(TransformersLMEngine):
-    #pretrained_weights = 'gpt2-large'
+    pretrained_weights = 'gpt2-large'
 
-    pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
-    #pretrained_weights = 'gpt2'
+    #pretrained_weights = 'gpt2-xl' # NOT yet updated to pip
+    #pretrained_weights = 'gpt2-medium'
 
     def __init__(self, text=None, pretrained_weights=None, **kwargs):
         if pretrained_weights is not None:
@@ -261,7 +261,8 @@ class Gpt2OddballnessEngine(TransformersLMEngine):
         return os.path.join("./", directory, name)
 
 if __name__ == "__main__":
-    sentence = "I am the man,who dont dont know.And who won't. be doing"
+    sentence = "I have a kat."
+    print("Analyzing: ", sentence)
     #obj = Gpt2OddballnessEngine("I have a dream")
     obj = Gpt2OddballnessEngine(sentence)
     # obj = Gpt2OddballnessEngine(r"Ten or eleven years at school make them tired in spite of pupils don'tice it")
@@ -271,3 +272,8 @@ if __name__ == "__main__":
     # obj.get_sentence_oddballness_exhausive(complexity=5)
     # exit()
     print("\n".join([repr(elem) for elem in obj.sentence_data]))
+    import json
+    for word_obj in obj.get_text_correction_proposal("I have a kat."):
+        print(word_obj)
+    # print(obj.get_text_correction_proposal("I have a library."))
+

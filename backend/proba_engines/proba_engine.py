@@ -139,30 +139,32 @@ class TransformersLMEngine():
 
                     token_prob = self.probs[ix - 1][token_id]
                     ############
-                    print("_" * 15, self.tokenizer.decode(token_id.item()), "_" * 15)
+                    # print("_" * 15, self.tokenizer.decode(token_id.item()), "_" * 15)
                     probs = torch.softmax(self.logits, 1)
 
                     sorted_probs, sorted_indices = torch.sort(probs[ix - 1], descending=True)
 
-                    print("\n", "sorted_indicies:")
-                    print(sorted_indices)
-                    print("\n", "items and their proba:")
-                    self._get_token_correction_proposal(ix)
-                    for a in range(0, 20):
-                        print(sorted_indices[a], self.tokenizer.decode(sorted_indices[a].item()), ' ', sorted_probs[a])
+                    # print("\n", "sorted_indicies:")
+                    # print(sorted_indices)
+                    # print("\n", "items and their proba:")
+                    _, correction_indices = self._get_token_correction_proposal(ix)
+                    # for a in range(0, 20):
+                    #     print(sorted_indices[a], self.tokenizer.decode(sorted_indices[a].item()), ' ', sorted_probs[a])
 
                     ####################
-                    print("_" * 15)
-                    print("My token id", token_id)
+                    # print("_" * 15)
+                    # print("My token id", token_id)
                     token_obj["name"] = self.tokenizer.decode(token_id.item())
                     token_obj["probability"] = token_prob.item()
-
-                    token_obj["oddballness"] = self._get_oddballness_proba(token_prob, probs[ix - 1]).item()
+                    token_obj["corrections"] = [self.tokenizer.decode(token_id.item()) for token_id in correction_indices]
+                    token_obj["oddballness"] = self._get_oddballness_proba(token_prob, probs[ix-1]).item()
 
                     arr.append(token_obj)
-
+                arr.pop()
+                arr.pop(0)
                 self.token_array = arr
-        return json.dumps(arr)
+        #return json.dumps(arr)
+        return arr
 
     @staticmethod
     def _string_to_chunks(text, **kwargs):
@@ -195,15 +197,13 @@ class TransformersLMEngine():
         self.sorted_probs, self.sorted_indices = torch.sort(self.probs[index - 1], descending=True)
         bt = self._get_best_tokens( num_tokens=int(num_tokens / 2))
         st = self._get_surrounding_tokens(index, num_tokens=int(num_tokens / 2))
-        print("btst 0:")
-        print(torch.cat((bt[0], st[0]), dim=0))
-        print("btst 1:")
-        print(torch.cat((bt[1], st[1]), dim=0))
-        print([self.tokenizer.decode(token_id.item()) for token_id in torch.cat((bt[1], st[1]), dim=0)])
-        # TODO
-        # merge results
+        # print("btst 0:")
+        # print(torch.cat((bt[0], st[0]), dim=0))
+        # print("btst 1:")
+        # print(torch.cat((bt[1], st[1]), dim=0))
+        # print([self.tokenizer.decode(token_id.item()) for token_id in torch.cat((bt[1], st[1]), dim=0)])
+        return torch.cat((bt[0], st[0]), dim=0), torch.cat((bt[1], st[1]), dim=0)
 
-    #TODO
     def _get_best_tokens(self, num_tokens=5):
         r""" Return num_tokens tokens that have the highest probability for a given token
 
