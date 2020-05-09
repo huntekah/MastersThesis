@@ -6,7 +6,7 @@ challenge_dir="../oddballness-paper/challenge_v6.2/";
 results_dir="${challenge_dir}/gpt2-oddballness-exhaustive-XL-a${alpha}-t${threshold}-c${complexity}"
 mkdir -p $results_dir
 
-for folder in dev-1 test-A; do
+for folder in dev-0 test-A; do
 	dir="${challenge_dir}/${folder}/"
 	mkdir -p $results_dir/$folder
 	$(python gonito_infer_gpt2_exhaustive.py --file ${dir}in.tsv --out ${results_dir}/${folder}/out.tsv --alpha $alpha --threshold $threshold --complexity ${complexity} --detokenized ${dir}in_detokenized.tsv )
