@@ -161,6 +161,7 @@ class TransformersLMEngine():
 
                     arr.append(token_obj)
                 arr.pop()
+                self._trim_bpe_space_artifact(arr)
                 arr.pop(0)
                 self.token_array = arr
         #return json.dumps(arr)
@@ -228,3 +229,8 @@ class TransformersLMEngine():
         print(lower_boundary, upper_boundary)
 
         return self.sorted_probs[lower_boundary:upper_boundary], self.sorted_indices[lower_boundary:upper_boundary]
+
+    def _trim_bpe_space_artifact(self, arr):
+        if self.input_text[0] != " ":
+            print(arr[0])
+            arr[0]["name"].lstrip(" ")
