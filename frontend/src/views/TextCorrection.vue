@@ -16,3 +16,8 @@ export default {
   }
 }
 </script>
+<style>
+.textCorrectionView{
+  text-align: center;
+}
+</style>

@@ -48,7 +48,7 @@
                 >
                 <!-- Vue eats up spaces, so -->
                 <template v-for="(letter, i) in object.name">
-                    <span v-if="letter !== ' '">{{ letter }}</span>
+                    <span v-if="! /\s/.test(letter)">{{ letter }}</span>
                     <span v-else>&nbsp;</span>
                 </template>
 

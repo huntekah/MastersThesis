@@ -2,9 +2,9 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed hendrerit et tortor at congue.
-       Aliquam congue <a href="/" target="_blank" rel="noopener">pharetra</a> consectetur. Sed semper.
-      
+      This app can help you write better.<br>
+      With a <a href="/#/textCorrection" target="_blank">click</a> of a button you can explore
+       grammatical error correction with help of GPT2 model.
     </p>
     <h3> Paper on Oddballness &#x1F5B9;</h3>
     <ul>
