@@ -1,7 +1,7 @@
 <template>
 
   <div class="textCorrectionView">
-    <img alt="Hand writing" src="../assets/hand_written.png" width="128px">
+    <img alt="Hand writing" src="../assets/hand_written.png" height="128px">
     <TextEditField msg="This is a loevly day!"/>
   </div>
 </template>

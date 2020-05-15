@@ -2,8 +2,8 @@
 
   <div class="fileCorrectionView">
     <div class="d-flex justify-content-center">
-      <img alt="File txt logo" src="../assets/file_txt.png" width="128px">
-      </div>
+      <img alt="File txt logo" src="../assets/file_txt.png" height="128px">
+    </div>
     <FileUpload v-show="isFileFormVisible()"/>
     <TextEditField v-show="isFileEditorVisible()"/>
     <div v-show="isFileLoading()">

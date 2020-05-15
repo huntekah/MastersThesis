@@ -1,30 +1,33 @@
 <template>
+  <v-app height="100%">
   <div class="container">
     <div class="row">
       <div class="col">
-      <button
-        type="button"
-        class="btn btn-outline-success btn-lg btn-block"
-        @click="sendInputTextToEngine()">
-        Check the text
-      </button>
+        <CheckTextButton/>
       </div>
     </div>
     <div class="row">
       <div class="col-lg-6">
-        <div class="input-group">
+        <div class="input-group shadow">
           <textarea
           class="form-control"
           :value="inputText"
           @input="updateInputText"
-          aria-label="textarea"></textarea>
+          aria-label="textarea"
+          rows="10"
+          style="height:100%;"
+          ></textarea>
         </div>
       </div>
-        <div class="col-lg-6 flex">
+        <div class="col-lg-6">
           <!-- {{inputText}} -->
-          <v-app>
+
   <!-- show the corrections -->
-            <v-menu v-model="correctionsListIsVisible">
+            <v-menu v-model="correctionsListIsVisible"
+            :absolute="true"
+            :position-x="menu_x"
+            :position-y="menu_y"
+            transition="slide-y-transition">
               <v-list dense>
                 <v-list-item
                 v-for="(correction, index) in correctionsListItems"
@@ -39,10 +42,10 @@
               </v-list>
             </v-menu>
   <!-- Show list of words -->
-            <div class="flex">
+            <div class="shadow outputField" style="height:100%; text-align: left">
               <template v-for="(object, index) in outputData" class="flex">
-                <div
-                   @click="toggleCorrectionsList(object, index)"
+                <span
+                   @click="toggleCorrectionsList(object, index, $event)"
                    :class="{'underlined': object.underlined}"
                    id="word"
                 >
@@ -52,30 +55,38 @@
                     <span v-else>&nbsp;</span>
                 </template>
 
-              </div>
+              </span>
               </template>
             </div>
-          </v-app>
+
 
         </div>
     </div>
   </div>
+    </v-app>
 </template>
 
 <script>
 import axios from 'axios';
 import { format } from 'path';
+import CheckTextButton from '@/components/CheckTextButton.vue'
+
 
 export default {
   name: 'FileUpload',
   props: {
     msg: String
   },
+  components: {
+    CheckTextButton
+  },
   data(){
     return {
       correctionsListIsVisible: false,
       correctionsListItems: [],
       activeIndex: -1,
+      menu_x:0,
+      menu_y:0,
     }
   },
   methods: {
@@ -85,11 +96,15 @@ export default {
     sendInputTextToEngine(){
       this.$store.dispatch('sendInputTextToEngine');
     },
-    toggleCorrectionsList (object, index) {
+    toggleCorrectionsList (object, index, e) {
+      e.preventDefault()
       if (object.underlined) {
         this.correctionsListItems = object.corrections
         this.activeIndex = index
         this.correctionsListIsVisible = true
+
+        this.menu_x = e.clientX
+        this.menu_y = e.clientY
       }
       else {
         this.activeIndex = {}
@@ -124,10 +139,13 @@ export default {
  word-break: break-all;
  float: left;
 }
+.outputField {
+  padding: .375rem .75rem
+}
 .underlined {
   text-decoration: underline dotted red;
   background-color: rgba(255, 0, 0, 0.1);
-  padding: 0px 4px;
+  padding: 0px 0px;
   cursor: pointer;
   border-radius: 5% / 25%;
 }

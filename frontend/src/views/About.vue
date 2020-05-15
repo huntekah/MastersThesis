@@ -1,8 +1,10 @@
 <template>
   <div class="about">
-    <h1>About</h1>
+    <div class="d-flex justify-content-center">
+      <img alt="Penguin logo" src="../assets/penguin.png" height="110px">
+    </div>
     <p>
-      This is the fornt end of my Masters Thesis project. <br>
+      This is the frontend of my Masters Thesis project. <br>
       You can correct your english.txt file or write a nice poem!
     </p>
   </div>

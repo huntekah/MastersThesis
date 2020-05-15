@@ -3,7 +3,7 @@
     <div id="nav">
       <router-link to="/">&#127968;</router-link> |
       <router-link to="/textCorrection">Text Correction</router-link> |
-      <router-link to="/fileCorection">File Correction</router-link> | 
+      <router-link to="/fileCorection">File Correction</router-link> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
@@ -31,4 +31,3 @@
   color: #42b983;
 }
 </style>
- 
