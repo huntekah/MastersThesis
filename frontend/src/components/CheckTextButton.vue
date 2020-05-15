@@ -18,9 +18,10 @@
             aria-expanded="false">
               Choose Model
             </button>
-            <div class="dropdown-menu" aria-labelledby="btnGroupDropChooseModel">
-              <a class="dropdown-item" href="#">Model 1</a>
-              <a class="dropdown-item" href="#">Model 2</a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDropChooseModel">
+              <a class="dropdown-item" href="#">Fast response </a>
+              <a class="dropdown-item" href="#">Slow, but powerfull!
+              </a>
             </div>
           </div>
         </div>
