@@ -133,7 +133,9 @@ export default {
   cursor: pointer;
   border-radius: 5% / 25%;
 }
-
+.underlined:hover {
+  background-color: rgba(255, 55, 0, 0.2);
+}
 .flex {
   display: flex;
   flex: 0 0;

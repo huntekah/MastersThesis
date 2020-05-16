@@ -1,0 +1,64 @@
+Model bidirectional zakłada liczenie oddballness dla prawdopodobieństw zdania 
+przy wszystkich możliwych kombinacjach podmiany każdego z słów w tym zdaniu 
+na N najbardziej prawdopodobnych słów. 
+W ten sposób z założenia otrzymujemy obustronny kontekstdla korekty gramatycznej
+ błędów.
+ Niestety, w tym pomyśle są dwa mankamenty, które można dodatkowo udowodnić
+ w prostych skryptach Pythonowych.
+
+ 1) [+____] Model przewiduje jedno kolejne słowo, i nie był szkolony dla zakłóceń,
+ dlatego mając jedno błędne słowo prawdopodobieństwo kolejnych niekoniecznie będzie maleć. 
+ Ale to w sumie słaby powód. drugi jest znacznie ważniejszy
+
+ 2) [+++++]+ Najłatwiej ten tok rozumowania przedstawić na przykładzie:
+
+(A) " Finding ways to deal with klimate change should be included in the ways of ensuring sustainable development. "
+                                _______
+ 
+ Analizujemy słowo "climate / klimate"
+
+ Model jednostronny przeczyta(B): "Finding ways to deal with"
+ i tutaj w słowie [ kl ][ imate ] będzie analizował oddballness dla subworda "kl"
+  względem wszystkich subwordów które są prawdopodobne jako dokończenie (B).
+ 
+ Czy "kl" jest mało prawdopodobne? nie. Ale już "imate" jako drugi subword jest 
+ mało prawdopodobne i model to wychwyci.
+ 
+ Teraz w przypadku modelu dwustronnego chcielibyśmy otrzymać znacznie lepsze 
+ rezultaty - w końcu tylko dla N=20 złożoność obliczeniowa jest 400 razy większa!
+
+ niestety - Jakie jest prawdopodobieństwo, że poprawne słowo "climate"
+ będzie wśród pierwszych 20 słów jako następnik (B)? stosunkowo niskie.
+ A potrzebowalibyśmy tego, by prawdopodobieństwo jednego zdania spośród analizowanych
+ 20 znacznie odbiegało od reszty - co skutkowałoby wysokim oddballness. (można sprawdzić programatycznie)
+
+ Oczywiście analizując więcej słów w końcu wzięlibyśmy pod uwagę również i poprawne słowo,
+ jednak byłoby to obliczeniowo zbyt kosztowne.
+
+3) Drugi minus podejścia 'bidirectional' wynika z samego faktu użycia tokenizacji BPE.
+ W momencie gdy błędne słowo nie jest podzielone na subwordy, znalezienie korekty
+ w podejściu bidirectional ma sens. Niestety, bardzo często błędne słowa dzielą się na kilka subwordów.
+
+ Model analizuje możliwe podmiany pierwszego subworda - pozostawiając pozostałe bez zmian.
+ Nie ma też zaimplementowanego mechanizmu opcjonalnego usuwania subwordów.
+ Dlatego nie jest wtedy w stanie wykryć (dla małego N = 20), że - przykładowo - 
+ "climate" byłoby najbardziej poprawnym słowem, jednak należaoby podstawić nie 
+ subword "climate" a subword "cl", którego prawdopodobieństwo też jest stosunkowo niskie.
+
+ Cała sytuacja opisana powyżej sprawia, że liczenie modelu języka obustronnie,
+ Chociaż matematycznie kuszące poprawnością dla niewielkich N nie przyniesie dużej poprawy w wynikach ewaluacji.
+
+ Tak jak wspomniałem wcześniej - zwiększenie N poprawiłoby wyniki, jednak
+ wiele subwordów które zwiększyłyby prawdopodobieństwo całego zdania może występować na szarym końcu,
+ a zwiększenie N do 50000 byłoby jednoznaczne ze zwiększeniem złożoności ~17*50k razy. (17 to średnia długość zdania)
+
+
+ 4) związane również z BPE - jeśli większość słów z błędami zawiera błędy w stylu literówki,
+  to takie słowo zostanie podzielone na dwa (lub więcej subwordów).
+  Wówczas drugi subword ma duże szanse na posiadanie wysokiego oddballness w obydwu modelach,
+  ponieważ oddballness dla słowa agregowane jest jako maksimum spośród wartości dla 
+  subwordów. Takie zachowanie się obydwu modeli sprawia, że różnice w wynikach są niewielkie.
+
+5) Moja teoria jest taka, że miejscem w którym 'bidirectional' się wyróżnia
+ są tylko takie błędy składniowe, które wynikają z późniejszego kontekstu zdania
+ i nie są błędami ortograficznymi.

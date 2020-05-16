@@ -6,7 +6,8 @@
             type="button"
             class="btn btn-outline-success btn-lg btn-block"
             @click="sendInputTextToEngine()">
-            Check the text
+<span v-show="isWaitingForCorrection()" class="spinner-border" style="width: 1.5rem; height: 1.5rem;" role="status" aria-hidden="true"></span>
+Check the text
           </button>
 
           <div class="btn-group" role="group">
@@ -52,11 +53,20 @@ export default {
   },
   methods: {
     sendInputTextToEngine() {
+      this.$store.commit('waitForCorrection')
       this.$store.dispatch('sendInputTextToEngine');
     },
     setModel(name) {
       this.$store.commit('setModel', name);
     },
+    isWaitingForCorrection() {
+      return this.waitingForCorrection;
+    }
+  },
+  computed: {
+    waitingForCorrection (){
+      return this.$store.state.waitingForCorrection;
+    }
   }
 }
 </script>

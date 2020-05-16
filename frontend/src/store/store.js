@@ -11,6 +11,7 @@ export const store = new Vuex.Store({
     outputData: {},
     fileIsLoaded: false,
     loadingFile: false,
+    waitingForCorrection: false,
     correctionModel: "left-to-right"
   },
 
@@ -49,6 +50,12 @@ export const store = new Vuex.Store({
     },
     endLoading: state => {
       state.loadingFile = false
+    },
+    waitForCorrection: state => {
+      state.waitingForCorrection = true
+    },
+    stopWaitingForCorrection: state => {
+      state.waitingForCorrection = false
     }
   },
 
@@ -80,6 +87,7 @@ export const store = new Vuex.Store({
         // handle success
         console.log(response)
         console.log(response.data)
+        context.commit('stopWaitingForCorrection')
         context.commit('updateOutputData', response.data)
       })
         .catch(function (response) {
