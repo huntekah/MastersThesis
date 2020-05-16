@@ -85,10 +85,14 @@ export default {
       if (object.underlined) {
         this.correctionsListItems = object.corrections
         this.activeIndex = index
-        this.correctionsListIsVisible = true
+        this.correctionsListIsVisible = false
 
         this.menu_x = e.clientX
         this.menu_y = e.clientY
+        //nice animation of closing window.
+        this.$nextTick(() => {
+          this.correctionsListIsVisible = true
+        })
       } else {
         this.activeIndex = {}
       }
