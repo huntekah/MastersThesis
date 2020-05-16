@@ -41,16 +41,12 @@ class Gpt2SearchView(APIView):
         if request.data:
             print(request.data)
             query = request.data["queryText"]
+            model_type = request.data["modelType"]
             # json_response = self.engine.get_sentence_oddballness(text=query)
-            response = self.engine.get_text_correction_proposal(input_text=query)
-            for obj in response:
-                obj["underlined"] =  True if obj["oddballness"] > self.threshold else False
-            #mock_response = [{"name":"I","probability":6.9e-05,"oddballness":0.79},{"name":" Have","probability":0.00012486,"oddballness":0.6745542883872986},{"name":" a","probability":0.11080533266067505,"oddballness":0.0},{"name":" Dream","probability":0.07753866165876389,"oddballness":0.001621440052986145}]
-            mock_response = [{"name": "I", "oddballness": 0.79, "corrections" : [" a", " b", " c"], "underlined": False},
-                             {"name": " Have"," oddballness": 0.67, "corrections" : [" d", " e", " f"], "underlined": True},
-                             {"name": " a", "oddballness": 0.0, "corrections" : [" g", " h", " i"], "underlined": False},
-                             {"name": " Dream", "oddballness": 0.0016, "corrections" : [" j", " k", " l"], "underlined": True}]
-
+            if model_type == "left-to-right":
+                response = self._left_to_right_correction(query)
+            elif model_type == "bidirectional":
+                response = self._bidirectional_correction(query)
             # run pipeline here.
             return Response(response)
             #return Response(json_response)
@@ -58,6 +54,20 @@ class Gpt2SearchView(APIView):
             # TODO
             return Response({"Is everything alright? Your request shuld contain JSON with \"queryText\":\"Your query\"!"})
 
+    # This should be in a class that inherits from gpt2_proba_engine and implements more functions
+    def _left_to_right_correction(self, query):
+        response = self.engine.get_text_correction_proposal(input_text=query)
+        for obj in response:
+            obj["underlined"] = True if obj["oddballness"] > self.threshold else False
+        return response
+
+    def _bidirectional_correction(self, query):
+        response = self.engine.get_exhaustive_text_correction_proposal(input_text=query)
+        for obj in response:
+            obj["underlined"] = True if obj["oddballness"] > 0.984375 else False
+        return response
 
 class HomePageView(TemplateView):
         template_name = 'home.html'
+
+

@@ -19,9 +19,13 @@
               Choose Model
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDropChooseModel">
-              <a class="dropdown-item" href="#">Fast response </a>
-              <a class="dropdown-item" href="#">Slow, but powerfull!
+              <a v-for="model in models"
+              class="dropdown-item"
+              v-on:click="setModel(model.name)"
+              href="#">
+                {{model.display_text}}
               </a>
+
             </div>
           </div>
         </div>
@@ -32,11 +36,27 @@ import { format } from 'path';
 
 export default {
   name: 'CheckTextButton',
+  data() {
+    return {
+      models: [
+        {
+          display_text: "Fast response",
+          name: "left-to-right"
+        },
+        {
+          display_text: "Slow, but powerful!",
+          name: "bidirectional"
+        },
+      ]
+    }
+  },
   methods: {
-    sendInputTextToEngine(){
+    sendInputTextToEngine() {
       this.$store.dispatch('sendInputTextToEngine');
     },
-    // TODO - functions for clicking the right model
+    setModel(name) {
+      this.$store.commit('setModel', name);
+    },
   }
 }
 </script>

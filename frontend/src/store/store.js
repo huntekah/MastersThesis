@@ -10,7 +10,8 @@ export const store = new Vuex.Store({
     inputText: '',
     outputData: {},
     fileIsLoaded: false,
-    loadingFile: false
+    loadingFile: false,
+    correctionModel: "left-to-right"
   },
 
   getters: {
@@ -19,7 +20,10 @@ export const store = new Vuex.Store({
     },
     outputData: (state) => {
       return state.outputData
-    }
+    },
+    correctionModel: (state) => {
+      return state.correctionModel
+    },
   },
 
   mutations: {
@@ -33,6 +37,9 @@ export const store = new Vuex.Store({
       state.outputData[index].name = correction
       state.outputData[index].underlined = false
       // state.inputText = state.outputData.map(e => e.name).join();
+    },
+    setModel: (state, payload) => {
+      state.correctionModel = payload
     },
     fileIsLoaded: state => {
       state.fileIsLoaded = true
@@ -67,7 +74,8 @@ export const store = new Vuex.Store({
       console.log(context.getters.inputText)
 
       axios.post('http://localhost:8000/search/', {
-        queryText: context.getters.inputText
+        queryText: context.getters.inputText,
+        modelType: context.getters.correctionModel
       }).then(function (response) {
         // handle success
         console.log(response)

@@ -3,6 +3,7 @@ from math import exp
 from transformers import *
 import torch.nn.functional as F
 import json
+from tqdm import tqdm
 import sys
 
 
@@ -121,7 +122,6 @@ class TransformersLMEngine():
         #oddballness = (1 - (chosen_token_proba * torch.log2(torch.tensor(chosen_token_proba))) /  torch.sum(tokens_proba * torch.log2(tokens_proba))) ** alpha
         return oddballness
 
-    #TODO
     def get_text_correction_proposal(self, input_text):
         r""" Return tokens that are likely to substitute each token on the entry.
 
@@ -130,30 +130,20 @@ class TransformersLMEngine():
         """
         arr = []
         with torch.no_grad():
-            for text_chunk in self._string_to_chunks(input_text):
+            for text_chunk in tqdm(self._string_to_chunks(input_text)):
                 self.input_text = text_chunk  # set the text currently worked on (no bigger than 1024)
                 self._compute_outputs()
                 for ix in range(self.input_size):
                     token_obj = {}
                     token_id = self.input_ids[0][ix]
-
                     token_prob = self.probs[ix - 1][token_id]
-                    ############
-                    # print("_" * 15, self.tokenizer.decode(token_id.item()), "_" * 15)
+
                     probs = torch.softmax(self.logits, 1)
 
                     sorted_probs, sorted_indices = torch.sort(probs[ix - 1], descending=True)
 
-                    # print("\n", "sorted_indicies:")
-                    # print(sorted_indices)
-                    # print("\n", "items and their proba:")
                     _, correction_indices = self._get_token_correction_proposal(ix)
-                    # for a in range(0, 20):
-                    #     print(sorted_indices[a], self.tokenizer.decode(sorted_indices[a].item()), ' ', sorted_probs[a])
 
-                    ####################
-                    # print("_" * 15)
-                    # print("My token id", token_id)
                     token_obj["name"] = self.tokenizer.decode(token_id.item())
                     token_obj["probability"] = token_prob.item()
                     token_obj["corrections"] = [self.tokenizer.decode(token_id.item()) for token_id in correction_indices]
@@ -161,10 +151,9 @@ class TransformersLMEngine():
 
                     arr.append(token_obj)
                 arr.pop()
-                self._trim_bpe_space_artifact(arr)
                 arr.pop(0)
+                self._trim_bpe_space_artifact(arr)
                 self.token_array = arr
-        #return json.dumps(arr)
         return arr
 
     @staticmethod
@@ -186,7 +175,6 @@ class TransformersLMEngine():
         else:
             yield lines
 
-    #TODO
     def _get_token_correction_proposal(self, index, num_tokens=10):
         r""" Return num_tokens tokens that could be used to correct token on the position index.
         half of the tokens are best tokens, the other half are tokens surrounding givev index
@@ -198,11 +186,6 @@ class TransformersLMEngine():
         self.sorted_probs, self.sorted_indices = torch.sort(self.probs[index - 1], descending=True)
         bt = self._get_best_tokens( num_tokens=int(num_tokens / 2))
         st = self._get_surrounding_tokens(index, num_tokens=int(num_tokens / 2))
-        # print("btst 0:")
-        # print(torch.cat((bt[0], st[0]), dim=0))
-        # print("btst 1:")
-        # print(torch.cat((bt[1], st[1]), dim=0))
-        # print([self.tokenizer.decode(token_id.item()) for token_id in torch.cat((bt[1], st[1]), dim=0)])
         return torch.cat((bt[0], st[0]), dim=0), torch.cat((bt[1], st[1]), dim=0)
 
     def _get_best_tokens(self, num_tokens=5):
@@ -213,7 +196,6 @@ class TransformersLMEngine():
         """
         return self.sorted_probs[:num_tokens], self.sorted_indices[:num_tokens]
 
-    #TODO
     def _get_surrounding_tokens(self, index, num_tokens=5, min_index=5):
         r""" Return num_tokens tokens that have similar probability to given token
 
@@ -232,5 +214,47 @@ class TransformersLMEngine():
 
     def _trim_bpe_space_artifact(self, arr):
         if self.input_text[0] != " ":
-            print(arr[0])
             arr[0]["name"].lstrip(" ")
+
+    def get_exhaustive_text_correction_proposal(self, input_text):
+        r""" Return tokens that are likely to substitute each token on the entry.
+
+        :param input_text:
+        :return:
+        """
+        arr = []
+        self.complexity=20
+        prev = self.alpha
+        self.alpha = 0.95 # temporary
+        arr_i = 0
+
+        with torch.no_grad():
+            for text_chunk in tqdm(self._string_to_chunks(input_text)):
+                self.oryginal_input_text = text_chunk
+                self.input_text = text_chunk
+                self._compute_exhaustive_outputs()
+
+                for ix in range(self.input_size):
+                    token_id = self.input_ids[0][ix]
+                    token_obj = {}
+                    token_obj["name"] = self.tokenizer.decode(token_id.item())
+                    token_obj["probability"] = self.normalized_token_prob[ix]
+                    token_obj["oddballness"] = self._get_oddballness_proba(token_obj["probability"], self.probs[ix],
+                                                                           alpha=self.alpha).item()
+                    arr.append(token_obj)
+
+                self.input_text = self.oryginal_input_text
+                self._compute_outputs()
+                for ix in range(self.input_size):
+                    self.sorted_probs, self.sorted_indices = torch.sort(self.probs[ix - 1], descending=True)
+                    _, correction_indices = self._get_best_tokens(5)
+
+                    arr[arr_i + ix]["corrections"] = [self.tokenizer.decode(token_id.item()) for token_id in correction_indices]
+                arr_i += self.input_size
+
+                arr.pop()
+                arr.pop(0)
+                self._trim_bpe_space_artifact(arr)
+                self.token_array = arr
+        self.alpha = prev # temporary
+        return arr
