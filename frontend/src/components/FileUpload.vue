@@ -1,23 +1,24 @@
 <template>
   <div class="container">
 
-    <form @submit.prevent="sendFile" 
+    <form @submit.prevent="sendFile"
     enctype="multipart/form-data">
       <div class=" input-group shadow-lg p-3 mb-5 bg-white rounded">
         <!-- <div class="form-group"> -->
-            
-          <label 
-          for="fileUpload" 
+
+          <label
+          for="fileUpload"
           class="">Choose an input file for correction:</label>
-          <input 
+          <br/>
+          <input
             style="display: none"
-            type="file" 
+            type="file"
             ref="file"
-            id="fileUpload" 
-            class="form-control-file .form-control-lg" 
+            id="fileUpload"
+            class="form-control-file .form-control-lg"
             @change="selectFile" />
           <div class='col d-flex align-items-center'>
-            <button type="button" @click="$refs.file.click()">
+            <button type="button" @click="$refs.file.click()" class="btn btn-outline-success">
               <img v-show="this.file==''" alt="Choose a file" src="@/assets/file_txt.png" width="32px">
               <span v-show="this.file!=''">{{this.file.name}}</span>
             </button>

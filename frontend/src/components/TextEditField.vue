@@ -9,7 +9,14 @@
     <div class="row">
       <div class="col-lg-6">
         <div class="input-group shadow">
-          <textarea class="form-control" :value="inputText" @input="updateInputText" aria-label="textarea" rows="10" style="height:100%;"></textarea>
+          <textarea
+          class="form-control"
+          :value="inputText"
+          @input="updateInputText"
+          placeholder="Type your sentence here"
+          aria-label="textarea"
+          rows="10"
+          style="height:100%;"></textarea>
         </div>
       </div>
       <div class="col-lg-6">
